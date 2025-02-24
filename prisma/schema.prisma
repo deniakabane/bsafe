@@ -9,11 +9,11 @@ datasource db {
 
 model User {
   id    Int    @id @default(autoincrement())
-  name  String  @db.VarChar(191)
+  name  String  @unique @db.VarChar(191)
   email String  @unique @db.VarChar(191)
-  phone String  @db.VarChar(191)
+  phone String  @unique @db.VarChar(191)
   full_address       String  @db.VarChar(191)
-  national_id_number String  @db.VarChar(191)
+  national_id_number String  @unique @db.VarChar(191)
   gender             String  @db.VarChar(50)
   blood_type         String  @db.VarChar(10)
   birth_place        String  @db.VarChar(191)
@@ -23,6 +23,8 @@ model User {
   domicile_city      String  @db.VarChar(191)
   last_education     String  @db.VarChar(191)
   registration_type  String  @db.VarChar(191) 
+  created_at       DateTime  @default(now()) @map("created_at")
+  updated_at       DateTime  @updatedAt @map("updated_at")
 
   @@index([name])  
   @@index([email])  
@@ -82,20 +84,18 @@ model UserCompany {
 model Company {
   id               Int      @id @default(autoincrement())
   logo             String?  @db.VarChar(255)
-  name             String   @db.VarChar(191)
+  name             String   @unique @db.VarChar(191)
   address          String   @db.Text
   email            String   @unique @db.VarChar(191)
-  phone            String   @db.VarChar(20)
+  phone            String   @unique @db.VarChar(20)
   company_wa       String?  @db.VarChar(20)
   hrd_wa           String?  @db.VarChar(20)
-  province         String   @db.VarChar(100)
-  city             String   @db.VarChar(100)
+  province         String?   @db.VarChar(100)
+  city             String?   @db.VarChar(100)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
-  deleted_at       DateTime?
   finance_pic      String?  @db.VarChar(191)
   finance_phone    String?  @db.VarChar(20)
-  
 }
 
 model Training {
@@ -119,7 +119,6 @@ model Schema {
   image          String?
   description     String?
   seo_link       String?
-  image_path     String?
   created_at      DateTime  @default(now()) @map("created_at")
   updated_at      DateTime  @updatedAt @map("updated_at")
 

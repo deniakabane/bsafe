@@ -44,19 +44,20 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const { name, description } = Object.fromEntries(await req.formData());
-    if (!name) return response(400, false, "name schemaGroup harus diisi");
+    const formData = Object.fromEntries(await req.formData());
+    const requiredFields = ["name", "description"];
+
+    for (const field of requiredFields) {
+      if (!formData[field]) return response(400, false, `${field} harus diisi`);
+    }
+
+    const { name, description } = formData;
 
     const newSchemaGroup = await prisma.schemaGroup.create({
-      data: { name, description: description || null },
+      data: { name, description },
     });
-    return response(
-      201,
-      true,
-      "SchemaGroup berhasil dibuat",
-      newSchemaGroup,
-      null
-    );
+
+    return response(201, true, "SchemaGroup berhasil dibuat", newSchemaGroup);
   } catch (error) {
     console.error("Error creating schemaGroup:", error);
     return response(500, false, "Failed to create schemaGroup", null, {

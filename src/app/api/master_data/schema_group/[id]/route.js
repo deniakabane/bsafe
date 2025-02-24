@@ -8,12 +8,18 @@ export async function PUT(req, { params }) {
     const id = parseInt(params.id, 10);
     if (!id) return response(400, false, "ID schemaGroup harus diisi");
 
-    const { name, description } = Object.fromEntries(await req.formData());
-    if (!name) return response(400, false, "name schemaGroup harus diisi");
+    const formData = Object.fromEntries(await req.formData());
+    const requiredFields = ["name", "description"];
+
+    for (const field of requiredFields) {
+      if (!formData[field]) return response(400, false, `${field} harus diisi`);
+    }
+
+    const { name, description } = formData;
 
     const updatedSchemaGroup = await prisma.schemaGroup.update({
       where: { id },
-      data: { name, description: description || null },
+      data: { name, description },
     });
 
     return response(
