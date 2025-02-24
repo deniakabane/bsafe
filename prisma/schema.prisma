@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String  @db.VarChar(191)
+  email String  @unique @db.VarChar(191)
+  phone String  @db.VarChar(191)
+  full_address       String  @db.VarChar(191)
+  national_id_number String  @db.VarChar(191)
+  gender             String  @db.VarChar(50)
+  blood_type         String  @db.VarChar(10)
+  birth_place        String  @db.VarChar(191)
+  birth_date         DateTime
+  religion           String  @db.VarChar(50)
+  domicile_province  String  @db.VarChar(191)
+  domicile_city      String  @db.VarChar(191)
+  last_education     String  @db.VarChar(191)
+  registration_type  String  @db.VarChar(191) 
+
+  @@index([name])  
+  @@index([email])  
+  @@index([phone])  
+  @@index([national_id_number])
+  @@index([domicile_city])
+}
+
+model AdminUser {
+  id    Int    @id @default(autoincrement())
+  name  String  @db.VarChar(191)
+  email String  @unique @db.VarChar(191)
+  phone String  @db.VarChar(191)
+  full_address       String  @db.VarChar(191)
+  national_id_number String  @db.VarChar(191)
+  gender             String  @db.VarChar(50)
+  blood_type         String  @db.VarChar(10)
+  birth_place        String  @db.VarChar(191)
+  birth_date         DateTime
+  religion           String  @db.VarChar(50)
+  domicile_province  String  @db.VarChar(191)
+  domicile_city      String  @db.VarChar(191)
+  last_education     String  @db.VarChar(191)
+  registration_type  String  @db.VarChar(191) 
+
+  @@index([name])  
+  @@index([email])  
+  @@index([phone])  
+  @@index([national_id_number])
+  @@index([domicile_city])
+}
+
+model UserTraining {
+  id              Int    @id @default(autoincrement())
+  user_id         Int    
+  training_id     Int    
+  certificate_no  String @db.VarChar(191)  
+  theme           String @db.VarChar(191)  
+
+  @@index([user_id])  
+  @@index([training_id])  
+  @@index([certificate_no])  
+}
+
+
+model UserCompany {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  company_id     Int
+  still_working  Boolean @default(true) 
+  
+  @@unique([user_id, company_id]) 
+  @@index([user_id])
+  @@index([company_id])
+}
+
+model Company {
+  id               Int      @id @default(autoincrement())
+  logo             String?  @db.VarChar(255)
+  name             String   @db.VarChar(191)
+  address          String   @db.Text
+  email            String   @unique @db.VarChar(191)
+  phone            String   @db.VarChar(20)
+  company_wa       String?  @db.VarChar(20)
+  hrd_wa           String?  @db.VarChar(20)
+  province         String   @db.VarChar(100)
+  city             String   @db.VarChar(100)
+  created_at       DateTime  @default(now()) @map("created_at")
+  updated_at       DateTime  @updatedAt @map("updated_at")
+  deleted_at       DateTime?
+  finance_pic      String?  @db.VarChar(191)
+  finance_phone    String?  @db.VarChar(20)
+  
+}
+
+model Training {
+  id          Int       @id @default(autoincrement())
+  deskripsi   String?   @db.LongText
+  mulai       DateTime?
+  berakhir    DateTime?
+  harga       Int?
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+}
+
+model Schema {
+  id              Int       @id @default(autoincrement())
+  schema_group_id Int
+  nama            String
+  gambar          String?
+  deskripsi       String?
+  link_seo        String?
+  gambar_path     String?
+  created_at      DateTime  @default(now()) @map("created_at")
+  updated_at      DateTime  @updatedAt @map("updated_at")
+
+  trainingGroup SchemaGroup? @relation(fields: [schema_group_id], references: [id])
+}
+
+model SchemaGroup {
+  id          Int       @id @default(autoincrement())
+  nama        String
+  keterangan  String?
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+
+  schemas     Schema[]
+}
+
