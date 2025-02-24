@@ -19,32 +19,38 @@ model User {
 
 model Training {
   id          Int       @id @default(autoincrement())
-  deskripsi   String?   @db.LongText
-  mulai       DateTime?
-  berakhir    DateTime?
-  harga       Int?
+  name        String    @db.VarChar(191)
+  description String?   @db.LongText
+  start_date  DateTime?
+  end_date    DateTime?
+  price       Int?
+  schema_id    Int      
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
+
+  schema      Schema    @relation(fields: [schema_id], references: [id])
 }
 
 model Schema {
   id              Int       @id @default(autoincrement())
   schema_group_id Int
-  nama            String
-  gambar          String?
-  deskripsi       String?
-  link_seo        String?
-  gambar_path     String?
+  name            String    
+  image          String?
+  description     String?
+  seo_link       String?
+  image_path     String?
   created_at      DateTime  @default(now()) @map("created_at")
   updated_at      DateTime  @updatedAt @map("updated_at")
 
-  trainingGroup SchemaGroup? @relation(fields: [schema_group_id], references: [id])
+  schemaGroup     SchemaGroup? @relation(fields: [schema_group_id], references: [id])
+  
+  trainings      Training[]
 }
 
 model SchemaGroup {
   id          Int       @id @default(autoincrement())
-  nama        String
-  keterangan  String?
+  name        String     
+  description String?
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
 
