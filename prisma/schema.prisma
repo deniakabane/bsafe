@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String  @db.VarChar(191)
+  email String  @unique @db.VarChar(191)
+  phone String  @db.VarChar(191)
+  @@index([name])  
+  @@index([email])  
+  @@index([phone])  
+}
+
+model Training {
+  id          Int       @id @default(autoincrement())
+  deskripsi   String?   @db.LongText
+  mulai       DateTime?
+  berakhir    DateTime?
+  harga       Int?
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+}
+
+model Schema {
+  id              Int       @id @default(autoincrement())
+  schema_group_id Int
+  nama            String
+  gambar          String?
+  deskripsi       String?
+  link_seo        String?
+  gambar_path     String?
+  created_at      DateTime  @default(now()) @map("created_at")
+  updated_at      DateTime  @updatedAt @map("updated_at")
+
+  trainingGroup SchemaGroup? @relation(fields: [schema_group_id], references: [id])
+}
+
+model SchemaGroup {
+  id          Int       @id @default(autoincrement())
+  nama        String
+  keterangan  String?
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+
+  schemas     Schema[]
+}
+
