@@ -26,20 +26,15 @@ model User {
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
 
-  @@index([name])  
-  @@index([email])  
-  @@index([phone])  
-  @@index([national_id_number])
-  @@index([domicile_city])
 }
 
 model AdminUser {
   id    Int    @id @default(autoincrement())
-  name  String  @db.VarChar(191)
+  name  String  @unique @db.VarChar(191)
   email String  @unique @db.VarChar(191)
-  phone String  @db.VarChar(191)
+  phone String  @unique @db.VarChar(191)
   full_address       String  @db.VarChar(191)
-  national_id_number String  @db.VarChar(191)
+  national_id_number String  @unique @db.VarChar(191)
   gender             String  @db.VarChar(50)
   blood_type         String  @db.VarChar(10)
   birth_place        String  @db.VarChar(191)
@@ -49,12 +44,8 @@ model AdminUser {
   domicile_city      String  @db.VarChar(191)
   last_education     String  @db.VarChar(191)
   registration_type  String  @db.VarChar(191) 
-
-  @@index([name])  
-  @@index([email])  
-  @@index([phone])  
-  @@index([national_id_number])
-  @@index([domicile_city])
+  
+  @@map("admin_user")
 }
 
 model UserTraining {
@@ -108,8 +99,9 @@ model Training {
   schema_id    Int      
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
-
   schema      Schema    @relation(fields: [schema_id], references: [id])
+
+  @@index([schema_id])
 }
 
 model Schema {
@@ -121,10 +113,10 @@ model Schema {
   seo_link       String?
   created_at      DateTime  @default(now()) @map("created_at")
   updated_at      DateTime  @updatedAt @map("updated_at")
-
   schemaGroup     SchemaGroup? @relation(fields: [schema_group_id], references: [id])
   
   trainings      Training[]
+  @@index([schema_group_id])
 }
 
 model SchemaGroup {
