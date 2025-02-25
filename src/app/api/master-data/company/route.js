@@ -54,11 +54,12 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const formData = Object.fromEntries(await req.formData());
-    const { name, email, phone, address } = formData;
+    const jsonData = await req.json();
+    const { name, email, phone, address } = jsonData;
 
-    if (!name || !email || !phone || !address)
+    if (!name || !email || !phone || !address) {
       return response(400, false, "Nama, email, phone, dan alamat harus diisi");
+    }
 
     const existingCompany = await prisma.company.findFirst({
       where: { OR: [{ name }, { email }, { phone }] },
@@ -75,7 +76,7 @@ export async function POST(req) {
       return response(400, false, `${conflictField} sudah digunakan`);
     }
 
-    const newCompany = await prisma.company.create({ data: formData });
+    const newCompany = await prisma.company.create({ data: jsonData });
 
     return response(201, true, "Company berhasil dibuat", newCompany);
   } catch (error) {

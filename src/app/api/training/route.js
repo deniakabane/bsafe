@@ -26,11 +26,19 @@ export async function GET(req) {
         select: {
           id: true,
           name: true,
-          description: true,
           start_date: true,
           end_date: true,
           price: true,
+          image_id: true,
           schema_id: true,
+          updated_at: true,
+          schema: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
         },
         orderBy: {
           [sortField]: sortOrder,
@@ -66,6 +74,7 @@ export async function POST(req) {
       "name",
       "description",
       "start_date",
+      "image_id",
       "end_date",
       "price",
       "schema_id",
@@ -104,6 +113,7 @@ export async function POST(req) {
         description: formData.description,
         start_date: startDate,
         end_date: endDate,
+        image_id: formData.image_id,
         price: formData.price, // Pastikan harga dikonversi ke number
         schema_id: formData.schema_id, // Pastikan schema_id dikonversi ke number
       },

@@ -3,15 +3,18 @@ import response from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
+    const params = await context.params;
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "ID company harus berupa angka");
 
-    const formData = Object.fromEntries(await req.formData());
-    const { name, email, phone, address } = formData;
-    if (!name || !email || !phone || !address)
+    const jsonData = await req.json();
+    const { name, email, phone, address } = jsonData;
+
+    if (!name || !email || !phone || !address) {
       return response(400, false, "Semua field wajib diisi");
+    }
 
     const existingCompany = await prisma.company.findFirst({
       where: {
@@ -33,7 +36,7 @@ export async function PUT(req, { params }) {
 
     const updatedCompany = await prisma.company.update({
       where: { id },
-      data: formData,
+      data: jsonData,
     });
 
     return response(200, true, "Company berhasil diperbarui", updatedCompany);
@@ -44,10 +47,10 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
-    const { id } = await params;
-    const companyId = parseInt(id, 10);
+    const params = await context.params;
+    const companyId = parseInt(params.id, 10);
     if (!companyId) return response(400, false, "ID schema harus diisi");
 
     await prisma.company.delete({ where: { id: companyId } });
@@ -60,8 +63,9 @@ export async function DELETE(req, { params }) {
   }
 }
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
+    const params = await context.params;
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "ID company harus berupa angka");
 

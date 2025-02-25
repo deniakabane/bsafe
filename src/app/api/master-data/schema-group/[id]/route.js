@@ -3,8 +3,9 @@ import response from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
+    const params = await context.params; // Tambahkan await
     const id = parseInt(params.id, 10);
     if (isNaN(id))
       return response(400, false, "ID schemaGroup harus berupa angka");
@@ -42,8 +43,9 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
+    const params = await context.params;
     const id = parseInt(params.id, 10);
     if (!id) return response(400, false, "ID schemaGroup harus diisi");
 

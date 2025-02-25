@@ -5,10 +5,9 @@ import {
   buildSearchCondition,
   getPaginationMeta,
 } from "@/utils/queryHelper";
-import { validateNationalId } from "@/utils/validateNationalId";
 const prisma = new PrismaClient();
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     const {
       page,
@@ -19,13 +18,19 @@ export async function GET(req, { params }) {
       sortOrder = "desc",
     } = getQueryParams(req.url);
 
-    const { id } = params; // ID user dari URL
+    const params = await context.params; // Tunggu params jika async
+    const { id } = params; // Ambil ID setelah await
+
+    if (!id) {
+      return response(400, false, "User ID is required");
+    }
+
     const searchCondition = buildSearchCondition("training_id", search);
 
     // Tambahkan filter berdasarkan ID user jika tersedia
     const whereCondition = {
       ...searchCondition,
-      ...(id ? { user_id: parseInt(id, 10) } : {}), // Filter berdasarkan user_id jika ada
+      user_id: parseInt(id, 10), // Pastikan user_id berupa integer
     };
 
     const [userTrainings, totalItems] = await Promise.all([
@@ -38,6 +43,18 @@ export async function GET(req, { params }) {
           certificate_no: true,
           theme: true,
           updated_at: true,
+          training: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
         },
         orderBy: {
           [sortField]: sortOrder,

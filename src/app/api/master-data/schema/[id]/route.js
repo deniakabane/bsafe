@@ -3,8 +3,9 @@ import response from "@/utils/response";
 
 const prisma = new PrismaClient();
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
+    const params = await context.params;
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "ID schema harus berupa angka");
 
@@ -38,10 +39,10 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
-    const { id } = await params;
-    const schemaId = parseInt(id, 10);
+    const params = await context.params;
+    const schemaId = parseInt(params.id, 10);
     if (!schemaId) return response(400, false, "ID schema harus diisi");
 
     await prisma.schema.delete({ where: { id: schemaId } });

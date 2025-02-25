@@ -8,57 +8,43 @@ export async function PUT(req, context) {
   try {
     const params = await context.params;
     const userId = parseInt(params.id, 10);
-    const trainingId = parseInt(params.trainingId, 10);
+    const companyId = parseInt(params.companyId, 10);
 
-    if (isNaN(userId) || isNaN(trainingId)) {
-      return response(400, false, "Invalid user ID or training ID");
+    if (isNaN(userId) || isNaN(companyId)) {
+      return response(400, false, "Invalid user ID or company ID");
     }
 
     const jsonData = await req.json();
-    const { certificate_no, theme } = jsonData;
+    const { still_working } = jsonData;
 
-    if (!certificate_no || !theme) {
-      return response(400, false, "Missing required fields");
+    if (typeof still_working !== "boolean") {
+      return response(400, false, "Missing or invalid 'still_working' field");
     }
 
-    const existingUserTraining = await prisma.userTraining.findFirst({
+    const existingUserCompany = await prisma.userCompany.findFirst({
       where: {
         user_id: userId,
-        training_id: trainingId,
+        company_id: companyId,
       },
     });
 
-    if (!existingUserTraining) {
-      return response(404, false, "User training record not found");
+    if (!existingUserCompany) {
+      return response(404, false, "User company record not found");
     }
 
-    const certificateExists = await prisma.userTraining.findFirst({
-      where: {
-        certificate_no,
-        NOT: { id: existingUserTraining.id },
-      },
-    });
-
-    if (certificateExists) {
-      return response(400, false, "Certificate number already exists");
-    }
-
-    const updatedUserTraining = await prisma.userTraining.update({
-      where: { id: existingUserTraining.id },
-      data: {
-        certificate_no,
-        theme,
-      },
+    const updatedUserCompany = await prisma.userCompany.update({
+      where: { id: existingUserCompany.id },
+      data: { still_working },
     });
 
     return response(
       200,
       true,
-      "User training successfully updated",
-      updatedUserTraining
+      "User company successfully updated",
+      updatedUserCompany
     );
   } catch (error) {
-    return response(500, false, "Failed to update user training", null, {
+    return response(500, false, "Failed to update user company", null, {
       error: error.message,
     });
   }
