@@ -78,14 +78,30 @@ export async function POST(req, { params }) {
       return response(400, false, "Missing required fields");
     }
 
+    const trainingId = Number(training_id);
+
+    // Cek apakah training_id valid
     const trainingExists = await prisma.training.findUnique({
-      where: { id: Number(training_id) },
+      where: { id: trainingId },
     });
 
     if (!trainingExists) {
       return response(400, false, "Training not found");
     }
 
+    // Cek apakah kombinasi user_id dan training_id sudah ada
+    const userTrainingExists = await prisma.userTraining.findFirst({
+      where: {
+        user_id: userId,
+        training_id: trainingId,
+      },
+    });
+
+    if (userTrainingExists) {
+      return response(400, false, "User is already enrolled in this training");
+    }
+
+    // Cek apakah nomor sertifikat sudah digunakan
     const certificateExists = await prisma.userTraining.findFirst({
       where: { certificate_no },
     });
@@ -94,10 +110,11 @@ export async function POST(req, { params }) {
       return response(400, false, "Certificate number already exists");
     }
 
+    // Buat data baru
     const newUserTraining = await prisma.userTraining.create({
       data: {
         user_id: userId,
-        training_id: training_id,
+        training_id: trainingId,
         certificate_no,
         theme,
       },

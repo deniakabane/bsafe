@@ -90,15 +90,38 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { id } = await params;
-    const userId = parseInt(id, 10);
-    if (!userId) return response(400, false, "ID schema harus diisi");
+    const userId = parseInt(params.id, 10);
 
-    await prisma.user.delete({ where: { id: userId } });
+    if (isNaN(userId)) {
+      return response(400, false, "Invalid user ID");
+    }
 
-    return response(200, true, "User berhasil dihapus");
+    // Cek apakah user ada
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!userExists) {
+      return response(404, false, "User not found");
+    }
+
+    // Hapus semua training yang terkait dengan user
+    await prisma.userTraining.deleteMany({
+      where: { user_id: userId },
+    });
+
+    // Hapus user
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return response(
+      200,
+      true,
+      "User and related trainings successfully deleted"
+    );
   } catch (error) {
-    return response(500, false, "Failed to delete schema", null, {
+    return response(500, false, "Failed to delete user", null, {
       error: error.message,
     });
   }
