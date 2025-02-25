@@ -1,33 +1,29 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `full_address` VARCHAR(191) NOT NULL,
+    `national_id_number` VARCHAR(191) NOT NULL,
+    `gender` VARCHAR(50) NOT NULL,
+    `blood_type` VARCHAR(10) NOT NULL,
+    `birth_place` VARCHAR(191) NOT NULL,
+    `birth_date` DATETIME(3) NOT NULL,
+    `religion` VARCHAR(50) NOT NULL,
+    `domicile_province` VARCHAR(191) NOT NULL,
+    `domicile_city` VARCHAR(191) NOT NULL,
+    `last_education` VARCHAR(191) NOT NULL,
+    `registration_type` VARCHAR(191) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
 
-  - You are about to drop the `adminuser` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `schemagroup` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `usercompany` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `usertraining` table. If the table is not empty, all the data it contains will be lost.
-  - A unique constraint covering the columns `[national_id_number]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-
-*/
--- DropForeignKey
-ALTER TABLE `schema` DROP FOREIGN KEY `Schema_schema_group_id_fkey`;
-
--- DropIndex
-DROP INDEX `Schema_schema_group_id_fkey` ON `schema`;
-
--- DropIndex
-DROP INDEX `User_name_key` ON `user`;
-
--- DropTable
-DROP TABLE `adminuser`;
-
--- DropTable
-DROP TABLE `schemagroup`;
-
--- DropTable
-DROP TABLE `usercompany`;
-
--- DropTable
-DROP TABLE `usertraining`;
+    UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `User_phone_key`(`phone`),
+    UNIQUE INDEX `User_national_id_number_key`(`national_id_number`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `admin_user` (
@@ -46,17 +42,9 @@ CREATE TABLE `admin_user` (
     `domicile_city` VARCHAR(191) NOT NULL,
     `last_education` VARCHAR(191) NOT NULL,
     `registration_type` VARCHAR(191) NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `admin_user_email_key`(`email`),
     UNIQUE INDEX `admin_user_phone_key`(`phone`),
-    UNIQUE INDEX `admin_user_national_id_number_key`(`national_id_number`),
-    INDEX `admin_user_name_idx`(`name`),
-    INDEX `admin_user_email_idx`(`email`),
-    INDEX `admin_user_phone_idx`(`phone`),
-    INDEX `admin_user_national_id_number_idx`(`national_id_number`),
-    INDEX `admin_user_domicile_city_idx`(`domicile_city`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -92,9 +80,66 @@ CREATE TABLE `user_company` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `Company` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `logo` VARCHAR(255) NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `address` TEXT NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(20) NOT NULL,
+    `company_wa` VARCHAR(20) NULL,
+    `hrd_wa` VARCHAR(20) NULL,
+    `province` VARCHAR(100) NULL,
+    `city` VARCHAR(100) NULL,
+    `finance_pic` VARCHAR(191) NULL,
+    `finance_phone` VARCHAR(20) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Company_name_key`(`name`),
+    UNIQUE INDEX `Company_email_key`(`email`),
+    UNIQUE INDEX `Company_phone_key`(`phone`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Training` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `description` LONGTEXT NULL,
+    `start_date` DATETIME(3) NULL,
+    `end_date` DATETIME(3) NULL,
+    `price` INTEGER NULL,
+    `schema_id` INTEGER NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    INDEX `Training_schema_id_idx`(`schema_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Schema` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `schema_group_id` INTEGER NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `image` VARCHAR(191) NULL,
+    `description` VARCHAR(191) NULL,
+    `seo_link` VARCHAR(191) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    INDEX `Schema_schema_group_id_idx`(`schema_group_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `schema_group` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -103,7 +148,7 @@ CREATE TABLE `schema_group` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `dokmaster` (
+CREATE TABLE `master_document` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -115,9 +160,9 @@ CREATE TABLE `dokmaster` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    INDEX `dokmaster_user_id_idx`(`user_id`),
-    INDEX `dokmaster_skp_id_idx`(`skp_id`),
-    INDEX `dokmaster_training_id_idx`(`training_id`),
+    INDEX `master_document_user_id_idx`(`user_id`),
+    INDEX `master_document_skp_id_idx`(`skp_id`),
+    INDEX `master_document_training_id_idx`(`training_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -136,7 +181,7 @@ CREATE TABLE `Reseller` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `History` (
+CREATE TABLE `history_payment` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
     `training_id` INTEGER NOT NULL,
@@ -147,10 +192,10 @@ CREATE TABLE `History` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    INDEX `History_user_id_idx`(`user_id`),
-    INDEX `History_training_id_idx`(`training_id`),
-    INDEX `History_reseller_id_idx`(`reseller_id`),
-    INDEX `History_status_idx`(`status`),
+    INDEX `history_payment_user_id_idx`(`user_id`),
+    INDEX `history_payment_training_id_idx`(`training_id`),
+    INDEX `history_payment_reseller_id_idx`(`reseller_id`),
+    INDEX `history_payment_status_idx`(`status`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -181,8 +226,8 @@ CREATE TABLE `product_appeal_detail` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateIndex
-CREATE UNIQUE INDEX `User_national_id_number_key` ON `User`(`national_id_number`);
+-- AddForeignKey
+ALTER TABLE `Training` ADD CONSTRAINT `Training_schema_id_fkey` FOREIGN KEY (`schema_id`) REFERENCES `Schema`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Schema` ADD CONSTRAINT `Schema_schema_group_id_fkey` FOREIGN KEY (`schema_group_id`) REFERENCES `schema_group`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

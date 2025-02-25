@@ -18,8 +18,9 @@ export async function GET(req) {
       prisma.schema.findMany({
         where: searchCondition,
         select: {
+          id: true,
           name: true,
-          image: true,
+          image_id: true,
           description: true,
           seo_link: true,
           updated_at: true,
@@ -59,19 +60,41 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const formData = Object.fromEntries(await req.formData());
-    const requiredFields = ["name", "image", "seo_link", "schema_group_id"];
+    const jsonData = await req.json();
+    const requiredFields = ["name", "image_id", "seo_link", "schema_group_id"];
 
     for (const field of requiredFields) {
-      if (!formData[field]) return response(400, false, `${field} harus diisi`);
+      if (!jsonData[field]) return response(400, false, `${field} harus diisi`);
     }
 
-    const schema_group_id = parseInt(formData.schema_group_id, 10);
+    const schema_group_id = parseInt(jsonData.schema_group_id, 10);
     if (isNaN(schema_group_id))
       return response(400, false, "schema_group_id harus berupa angka");
 
+    // Cek apakah schema_group_id ada di tabel SchemaGroup
+    const schemaGroupExists = await prisma.schemaGroup.findUnique({
+      where: { id: schema_group_id },
+    });
+
+    if (!schemaGroupExists) {
+      return response(
+        400,
+        false,
+        "Invalid schema_group_id: SchemaGroup not found"
+      );
+    }
+
+    const slug = jsonData.name.replace(/\s+/g, "-").toLowerCase(); // Generate slug
+
+    // Buat data baru di tabel Schema
     const newSchema = await prisma.schema.create({
-      data: { ...formData, schema_group_id },
+      data: {
+        name: jsonData.name,
+        image_id: jsonData.image_id,
+        seo_link: jsonData.seo_link,
+        schema_group_id,
+        slug,
+      },
     });
 
     return response(201, true, "Schema berhasil dibuat", newSchema);

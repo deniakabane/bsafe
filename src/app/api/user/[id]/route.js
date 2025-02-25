@@ -9,7 +9,7 @@ export async function PUT(req, { params }) {
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "Invalid user ID");
 
-    const formData = Object.fromEntries(await req.formData());
+    const jsonData = await req.json();
 
     const requiredFields = [
       "name",
@@ -28,7 +28,7 @@ export async function PUT(req, { params }) {
       "registration_type",
     ];
 
-    const missingFields = requiredFields.filter((field) => !formData[field]);
+    const missingFields = requiredFields.filter((field) => !jsonData[field]);
     if (missingFields.length) {
       return response(
         400,
@@ -37,25 +37,29 @@ export async function PUT(req, { params }) {
       );
     }
 
-    const idError = validateNationalId(formData.national_id_number);
+    // Debugging: Cek apakah national_id_number valid
+    console.log("NIK:", jsonData.national_id_number);
+
+    const idError = validateNationalId(jsonData.national_id_number);
     if (idError) return response(400, false, idError);
 
-    const uniqueFields = ["name", "email", "phone", "national_id_number"];
+    const uniqueFields = ["email", "phone", "national_id_number"];
     const duplicates = await Promise.all(
-      uniqueFields.map(async (field) => ({
-        field,
-        exists: await prisma.user.findFirst({
+      uniqueFields.map(async (field) => {
+        const exists = await prisma.user.findFirst({
           where: {
-            [field]: formData[field],
+            [field]: jsonData[field],
             id: { not: id },
           },
-        }),
-      }))
+        });
+        return { field, exists };
+      })
     );
 
     const duplicateFields = duplicates
       .filter((check) => check.exists)
       .map((check) => check.field);
+
     if (duplicateFields.length) {
       return response(
         400,
@@ -64,13 +68,20 @@ export async function PUT(req, { params }) {
       );
     }
 
+    // Pastikan birth_date dalam format yang valid
+    const birthDate = new Date(jsonData.birth_date);
+    if (isNaN(birthDate.getTime())) {
+      return response(400, false, "Invalid birth_date format (YYYY-MM-DD)");
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: { ...formData, birth_date: new Date(formData.birth_date) },
+      data: { ...jsonData, birth_date: birthDate },
     });
 
     return response(200, true, "User successfully updated", updatedUser);
   } catch (error) {
+    console.error("Error updating user:", error);
     return response(500, false, "Failed to update user", null, {
       error: error.message,
     });

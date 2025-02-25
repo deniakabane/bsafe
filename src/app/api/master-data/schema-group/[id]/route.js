@@ -6,20 +6,26 @@ const prisma = new PrismaClient();
 export async function PUT(req, { params }) {
   try {
     const id = parseInt(params.id, 10);
-    if (!id) return response(400, false, "ID schemaGroup harus diisi");
+    if (isNaN(id))
+      return response(400, false, "ID schemaGroup harus berupa angka");
 
-    const formData = Object.fromEntries(await req.formData());
+    const jsonData = await req.json();
     const requiredFields = ["name", "description"];
 
     for (const field of requiredFields) {
-      if (!formData[field]) return response(400, false, `${field} harus diisi`);
+      if (!jsonData[field]) return response(400, false, `${field} harus diisi`);
     }
 
-    const { name, description } = formData;
+    const { name, description } = jsonData;
+
+    const updateData = { name, description };
+    if (name) {
+      updateData.slug = name.replace(/\s+/g, "-").toLowerCase();
+    }
 
     const updatedSchemaGroup = await prisma.schemaGroup.update({
       where: { id },
-      data: { name, description },
+      data: updateData,
     });
 
     return response(

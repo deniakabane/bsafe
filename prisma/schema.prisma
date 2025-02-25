@@ -12,6 +12,7 @@ model User {
   name  String  @db.VarChar(191)
   email String  @unique @db.VarChar(191)
   phone String  @unique @db.VarChar(191)
+  password       String  @db.VarChar(191)
   full_address       String  @db.VarChar(191)
   national_id_number String  @unique @db.VarChar(191)
   gender             String  @db.VarChar(50)
@@ -99,12 +100,14 @@ model Company {
 
 model Training {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(191)
+  name        String    
+  slug        String   
+  image_id    Int 
   description String?   @db.LongText
   start_date  DateTime?
   end_date    DateTime?
   price       Int?
-  schema_id    Int      
+  schema_id   Int      
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
   schema      Schema    @relation(fields: [schema_id], references: [id])
@@ -116,9 +119,10 @@ model Schema {
   id              Int       @id @default(autoincrement())
   schema_group_id Int
   name            String    
-  image          String?
+  slug            String    
+  image_id        Int
   description     String?
-  seo_link       String?
+  seo_link        String?
   created_at      DateTime  @default(now()) @map("created_at")
   updated_at      DateTime  @updatedAt @map("updated_at")
   schemaGroup     SchemaGroup? @relation(fields: [schema_group_id], references: [id])
@@ -130,6 +134,7 @@ model Schema {
 model SchemaGroup {
   id          Int       @id @default(autoincrement())
   name        String     
+  slug        String    
   description String?
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
@@ -172,7 +177,7 @@ model Reseller {
 
 }
 
-model History {
+model HistoryPayment {
   id          Int      @id @default(autoincrement())
   user_id     Int
   training_id Int
@@ -187,7 +192,7 @@ model History {
   @@index([training_id])
   @@index([reseller_id])
   @@index([status])
-
+  @@map("history_payment")
 }
 
 model ProductAppeal {
@@ -203,16 +208,15 @@ model ProductAppeal {
 
 model ProductAppealDetail {
   id         Int     @id @default(autoincrement())
-  product_id  Int
+  training_id  Int
   appeal_id   Int
   type       String  @db.VarChar(50)
   status     String  @db.VarChar(50)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  @@index([product_id])
+  @@index([training_id])
   @@index([appeal_id])
 
   @@map("product_appeal_detail")
-
 }

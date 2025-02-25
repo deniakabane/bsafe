@@ -6,22 +6,28 @@ const prisma = new PrismaClient();
 export async function PUT(req, { params }) {
   try {
     const id = parseInt(params.id, 10);
-    if (!id) return response(400, false, "ID schema harus diisi");
+    if (isNaN(id)) return response(400, false, "ID schema harus berupa angka");
 
-    const formData = Object.fromEntries(await req.formData());
-    const requiredFields = ["name", "image", "seo_link", "schema_group_id"];
+    const jsonData = await req.json();
+    const requiredFields = ["name", "image_id", "seo_link", "schema_group_id"];
 
     for (const field of requiredFields) {
-      if (!formData[field]) return response(400, false, `${field} harus diisi`);
+      if (!jsonData[field]) return response(400, false, `${field} harus diisi`);
     }
 
-    const schema_group_id = parseInt(formData.schema_group_id, 10);
+    const schema_group_id = parseInt(jsonData.schema_group_id, 10);
     if (isNaN(schema_group_id))
       return response(400, false, "schema_group_id harus berupa angka");
 
+    // Generate slug jika name berubah
+    const updateData = { ...jsonData, schema_group_id };
+    if (jsonData.name) {
+      updateData.slug = jsonData.name.replace(/\s+/g, "-").toLowerCase();
+    }
+
     const updatedSchema = await prisma.schema.update({
       where: { id },
-      data: { ...formData, schema_group_id },
+      data: updateData,
     });
 
     return response(200, true, "Schema berhasil diperbarui", updatedSchema);

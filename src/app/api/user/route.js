@@ -46,7 +46,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const formData = Object.fromEntries(await req.formData());
+    const jsonData = await req.json();
 
     const requiredFields = [
       "name",
@@ -56,6 +56,7 @@ export async function POST(req) {
       "national_id_number",
       "gender",
       "blood_type",
+      "password",
       "birth_place",
       "birth_date",
       "religion",
@@ -65,7 +66,7 @@ export async function POST(req) {
       "registration_type",
     ];
 
-    const missingFields = requiredFields.filter((field) => !formData[field]);
+    const missingFields = requiredFields.filter((field) => !jsonData[field]);
     if (missingFields.length) {
       return response(
         400,
@@ -74,17 +75,15 @@ export async function POST(req) {
       );
     }
 
-    // Validate national_id_number
-    const idError = validateNationalId(formData.national_id_number);
+    const idError = validateNationalId(jsonData.national_id_number);
     if (idError) return response(400, false, idError);
 
-    // Check for duplicate values in unique fields
-    const uniqueFields = ["name", "email", "phone", "national_id_number"];
+    const uniqueFields = ["email", "phone", "national_id_number"];
     const duplicates = await Promise.all(
       uniqueFields.map(async (field) => ({
         field,
-        exists: await prisma.user.findUnique({
-          where: { [field]: formData[field] },
+        exists: await prisma.user.findFirst({
+          where: { [field]: jsonData[field] },
         }),
       }))
     );
@@ -101,7 +100,10 @@ export async function POST(req) {
     }
 
     const newUser = await prisma.user.create({
-      data: { ...formData, birth_date: new Date(formData.birth_date) },
+      data: {
+        ...jsonData,
+        birth_date: new Date(jsonData.birth_date),
+      },
     });
 
     return response(201, true, "User successfully created", newUser);
