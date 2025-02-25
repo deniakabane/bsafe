@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
-import { validateNationalId } from "@/utils/validateNationalId";
 
 const prisma = new PrismaClient();
 

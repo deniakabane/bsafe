@@ -5,6 +5,7 @@ import {
   buildSearchCondition,
   getPaginationMeta,
 } from "@/utils/queryHelper";
+
 const prisma = new PrismaClient();
 
 export async function GET(req, context) {
@@ -18,35 +19,35 @@ export async function GET(req, context) {
       sortOrder = "desc",
     } = getQueryParams(req.url);
 
-    const params = await context.params; // Tunggu params jika async
-    const { id } = params; // Ambil ID setelah await
+    const params = await context.params;
+    const { id } = params;
 
     if (!id) {
       return response(400, false, "User ID is required");
     }
 
-    const searchCondition = buildSearchCondition("training_id", search);
+    const searchCondition = buildSearchCondition("skp_id", search);
 
-    // Tambahkan filter berdasarkan ID user jika tersedia
     const whereCondition = {
       ...searchCondition,
-      user_id: parseInt(id, 10), // Pastikan user_id berupa integer
+      user_id: parseInt(id, 10),
     };
 
-    const [userTrainings, totalItems] = await Promise.all([
-      prisma.userTraining.findMany({
+    const [userSkps, totalItems] = await Promise.all([
+      prisma.userSkp.findMany({
         where: whereCondition,
         select: {
           id: true,
           user_id: true,
-          training_id: true,
+          skp_id: true,
           certificate_no: true,
           theme: true,
           updated_at: true,
-          training: {
+          skp: {
             select: {
               name: true,
               slug: true,
+              type: true, // Tambahkan type di response
             },
           },
           user: {
@@ -62,7 +63,7 @@ export async function GET(req, context) {
         skip: offset,
         take: limit,
       }),
-      prisma.userTraining.count({
+      prisma.userSkp.count({
         where: whereCondition,
       }),
     ]);
@@ -72,12 +73,12 @@ export async function GET(req, context) {
     return response(
       200,
       true,
-      "Data user training berhasil diambil",
-      userTrainings,
+      "Data user skp berhasil diambil",
+      userSkps,
       pagination
     );
   } catch (error) {
-    return response(500, false, "Failed to retrieve user training data", {
+    return response(500, false, "Failed to retrieve user skp data", {
       error: error.message,
     });
   }
@@ -90,37 +91,48 @@ export async function POST(req, context) {
     if (isNaN(userId)) return response(400, false, "Invalid user ID");
 
     const jsonData = await req.json();
-    const { training_id, certificate_no, theme } = jsonData;
+    const { skp_id, certificate_no, theme } = jsonData;
 
-    if (!training_id || !certificate_no || !theme) {
+    if (!skp_id || !certificate_no || !theme) {
       return response(400, false, "Missing required fields");
     }
 
-    const trainingId = Number(training_id);
+    const skpId = Number(skp_id);
 
-    // Cek apakah training_id valid
-    const trainingExists = await prisma.training.findUnique({
-      where: { id: trainingId },
+    // Cek apakah user_id valid
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
     });
 
-    if (!trainingExists) {
-      return response(400, false, "Training not found");
+    if (!userExists) {
+      return response(400, false, "User not found");
     }
 
-    // Cek apakah kombinasi user_id dan training_id sudah ada
-    const userTrainingExists = await prisma.userTraining.findFirst({
+    // Cek apakah skp_id valid
+    const skpExists = await prisma.skp.findUnique({
+      where: { id: skpId },
+      select: { id: true, type: true },
+    });
+
+    if (!skpExists) {
+      return response(400, false, "Skp not found");
+    }
+
+    // Cek apakah kombinasi user_id dan skp_id sudah ada
+    const userSkpExists = await prisma.userSkp.findFirst({
       where: {
         user_id: userId,
-        training_id: trainingId,
+        skp_id: skpId,
       },
     });
 
-    if (userTrainingExists) {
-      return response(400, false, "User is already enrolled in this training");
+    if (userSkpExists) {
+      return response(400, false, "User is already enrolled in this skp");
     }
 
     // Cek apakah nomor sertifikat sudah digunakan
-    const certificateExists = await prisma.userTraining.findFirst({
+    const certificateExists = await prisma.userSkp.findFirst({
       where: { certificate_no },
     });
 
@@ -128,24 +140,22 @@ export async function POST(req, context) {
       return response(400, false, "Certificate number already exists");
     }
 
-    // Buat data baru
-    const newUserTraining = await prisma.userTraining.create({
+    // Buat data baru tanpa `type`
+    const newUserSkp = await prisma.userSkp.create({
       data: {
         user_id: userId,
-        training_id: trainingId,
+        skp_id: skpId,
         certificate_no,
         theme,
       },
     });
 
-    return response(
-      201,
-      true,
-      "User training successfully created",
-      newUserTraining
-    );
+    return response(201, true, "User skp successfully created", {
+      ...newUserSkp,
+      type: skpExists.type,
+    });
   } catch (error) {
-    return response(500, false, "Failed to create user training", null, {
+    return response(500, false, "Failed to create user skp", null, {
       error: error.message,
     });
   }

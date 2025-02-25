@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
   id    Int    @id @default(autoincrement())
   name  String  @db.VarChar(191)
@@ -29,6 +30,8 @@ model User {
 
     userCompanies      UserCompany[]
       userTrainings      UserTraining[]
+      userSkps      UserSkp[]
+
 }
 
 model AdminUser {
@@ -102,7 +105,7 @@ model Company {
   hrd_wa           String?  @db.VarChar(20)
   province         String?   @db.VarChar(100)
   city             String?   @db.VarChar(100)
-   finance_pic      String?  @db.VarChar(191)
+  finance_pic      String?  @db.VarChar(191)
   finance_phone    String?  @db.VarChar(20)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
@@ -119,12 +122,59 @@ model Training {
   end_date    DateTime?
   price       Int?
   schema_id   Int      
+  status     Boolean  @default(true) 
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
   schema      Schema    @relation(fields: [schema_id], references: [id])
-userTrainings UserTraining[] 
+  userTrainings UserTraining[] 
   @@index([schema_id])
 }
+
+enum SkpType {
+  SKP
+  LISENSI
+}
+
+model Skp {
+  id          Int       @id @default(autoincrement())
+  name        String    
+  slug        String   
+  image_id    Int 
+  description String?   @db.LongText
+  start_date  DateTime?
+  end_date    DateTime?
+  price       Int?
+  type        SkpType 
+  schema_id   Int      
+  status     Boolean  @default(true) 
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+  schema      Schema    @relation(fields: [schema_id], references: [id])
+  userSkps UserSkp[] 
+
+  @@index([schema_id])
+}
+
+
+model UserSkp {
+  id              Int    @id @default(autoincrement())
+  user_id         Int    
+  skp_id     Int    
+  certificate_no  String @db.VarChar(191)  
+  theme           String @db.VarChar(191) 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt 
+
+  user     User     @relation(fields: [user_id], references: [id])
+  skp Skp @relation(fields: [skp_id], references: [id])
+
+  @@index([user_id])  
+  @@index([skp_id])  
+  @@index([certificate_no])  
+
+  @@map("user_skp")
+}
+
 
 model Schema {
   id              Int       @id @default(autoincrement())
@@ -139,6 +189,8 @@ model Schema {
   schemaGroup     SchemaGroup? @relation(fields: [schema_group_id], references: [id])
   
   trainings      Training[]
+  skps      Skp[]
+
   @@index([schema_group_id])
 }
 
@@ -161,7 +213,7 @@ model MasterDocument {
   name       String  @db.VarChar(191)
   url        String  @db.Text
   type       String  @db.VarChar(50) 
-  status     String  @db.VarChar(50) 
+  status     Boolean  @default(true) 
   training_id Int?   
   skp_id     Int?    
   created_at DateTime @default(now())
@@ -195,6 +247,7 @@ model HistoryPayment {
   nominal     Decimal  @db.Decimal(10,2) 
   proof_of_tf String?  @db.VarChar(255)   // bukti tf
   reseller_id Int?
+  
   status      String   @db.VarChar(20)   
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -210,7 +263,7 @@ model ProductAppeal {
   id     Int     @id @default(autoincrement())
   name   String  @db.VarChar(191)
   price  Float
-  status String  @db.VarChar(50)
+  status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
@@ -222,7 +275,7 @@ model ProductAppealDetail {
   training_id  Int
   appeal_id   Int
   type       String  @db.VarChar(50)
-  status     String  @db.VarChar(50)
+  status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 

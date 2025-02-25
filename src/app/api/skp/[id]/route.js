@@ -6,14 +6,13 @@ const prisma = new PrismaClient();
 export async function PUT(req, context) {
   try {
     const params = await context.params;
-    const trainingId = parseInt(params.id, 10);
-    if (isNaN(trainingId)) return response(400, false, "ID harus berupa angka");
+    const skpId = parseInt(params.id, 10);
+    if (isNaN(skpId)) return response(400, false, "ID harus berupa angka");
 
-    const existingTraining = await prisma.training.findUnique({
-      where: { id: trainingId },
+    const existingskp = await prisma.skp.findUnique({
+      where: { id: skpId },
     });
-    if (!existingTraining)
-      return response(404, false, "Training tidak ditemukan");
+    if (!existingskp) return response(404, false, "skp tidak ditemukan");
 
     const jsonData = await req.json();
     const {
@@ -21,6 +20,7 @@ export async function PUT(req, context) {
       start_date,
       end_date,
       price,
+      type,
       status,
       image_id,
       name,
@@ -71,14 +71,14 @@ export async function PUT(req, context) {
       updateData.slug = name.replace(/\s+/g, "-").toLowerCase();
     }
 
-    const updatedTraining = await prisma.training.update({
-      where: { id: trainingId },
+    const updatedskp = await prisma.skp.update({
+      where: { id: skpId },
       data: updateData,
     });
 
-    return response(200, true, "Training berhasil diperbarui", updatedTraining);
+    return response(200, true, "skp berhasil diperbarui", updatedskp);
   } catch (error) {
-    return response(500, false, "Failed to update training", null, {
+    return response(500, false, "Failed to update skp", null, {
       error: error.message,
     });
   }
@@ -87,12 +87,12 @@ export async function PUT(req, context) {
 export async function DELETE(req, context) {
   try {
     const params = await context.params;
-    const trainingId = parseInt(params.id, 10);
-    if (!trainingId) return response(400, false, "ID schema harus diisi");
+    const skpId = parseInt(params.id, 10);
+    if (!skpId) return response(400, false, "ID schema harus diisi");
 
-    await prisma.training.delete({ where: { id: trainingId } });
+    await prisma.skp.delete({ where: { id: skpId } });
 
-    return response(200, true, "Training berhasil dihapus");
+    return response(200, true, "skp berhasil dihapus");
   } catch (error) {
     return response(500, false, "Failed to delete schema", null, {
       error: error.message,
@@ -104,10 +104,9 @@ export async function GET(req, context) {
   try {
     const params = await context.params;
     const id = parseInt(params.id, 10);
-    if (isNaN(id))
-      return response(400, false, "ID training harus berupa angka");
+    if (isNaN(id)) return response(400, false, "ID skp harus berupa angka");
 
-    const training = await prisma.training.findUnique({
+    const skp = await prisma.skp.findUnique({
       where: { id },
       include: {
         schema: {
@@ -120,11 +119,11 @@ export async function GET(req, context) {
       },
     });
 
-    if (!training) return response(404, false, "Training tidak ditemukan");
+    if (!skp) return response(404, false, "skp tidak ditemukan");
 
-    return response(200, true, "Data training berhasil diambil", training);
+    return response(200, true, "Data skp berhasil diambil", skp);
   } catch (error) {
-    return response(500, false, "Failed to retrieve training", null, {
+    return response(500, false, "Failed to retrieve skp", null, {
       error: error.message,
     });
   }

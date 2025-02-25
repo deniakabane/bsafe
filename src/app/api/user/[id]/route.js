@@ -96,7 +96,6 @@ export async function DELETE(req, { params }) {
       return response(400, false, "Invalid user ID");
     }
 
-    // Cek apakah user ada
     const userExists = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -105,21 +104,27 @@ export async function DELETE(req, { params }) {
       return response(404, false, "User not found");
     }
 
-    // Hapus semua training yang terkait dengan user
-    await prisma.userTraining.deleteMany({
+    const hasUserTraining = await prisma.userTraining.findFirst({
       where: { user_id: userId },
     });
 
-    // Hapus user
+    const hasUserSkp = await prisma.userSkp.findFirst({
+      where: { user_id: userId },
+    });
+
+    if (hasUserTraining || hasUserSkp) {
+      return response(
+        400,
+        false,
+        "User cannot be deleted because related data exists in userTraining or userSkp"
+      );
+    }
+
     await prisma.user.delete({
       where: { id: userId },
     });
 
-    return response(
-      200,
-      true,
-      "User and related trainings successfully deleted"
-    );
+    return response(200, true, "User successfully deleted");
   } catch (error) {
     return response(500, false, "Failed to delete user", null, {
       error: error.message,

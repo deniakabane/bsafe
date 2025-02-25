@@ -19,8 +19,8 @@ export async function GET(req) {
     } = getQueryParams(req.url);
     const searchCondition = buildSearchCondition("name", search);
 
-    const [trainings, totalItems] = await Promise.all([
-      prisma.training.findMany({
+    const [skps, totalItems] = await Promise.all([
+      prisma.skp.findMany({
         where: searchCondition,
         select: {
           id: true,
@@ -46,21 +46,15 @@ export async function GET(req) {
         skip: offset,
         take: limit,
       }),
-      prisma.training.count({
+      prisma.skp.count({
         where: searchCondition,
       }),
     ]);
 
     const pagination = getPaginationMeta(totalItems, limit, page);
-    return response(
-      200,
-      true,
-      "Data training berhasil diambil",
-      trainings,
-      pagination
-    );
+    return response(200, true, "Data skp berhasil diambil", skps, pagination);
   } catch (error) {
-    return response(500, false, "Failed to retrieve trainings", {
+    return response(500, false, "Failed to retrieve skps", {
       error: error.message,
     });
   }
@@ -75,8 +69,9 @@ export async function POST(req) {
       "description",
       "start_date",
       "image_id",
-      "end_date",
       "status",
+      "end_date",
+      "type",
       "price",
       "schema_id",
     ];
@@ -88,6 +83,13 @@ export async function POST(req) {
         false,
         `Missing fields: ${missingFields.join(", ")}`
       );
+    }
+
+    // Validasi ENUM untuk type
+    const validTypes = ["SKP", "LISENSI"];
+    const type = formData.type.toUpperCase(); // Biar fleksibel inputnya bisa kecil/besar
+    if (!validTypes.includes(type)) {
+      return response(400, false, "Invalid type. Harus 'SKP' atau 'LISENSI'");
     }
 
     const startDate = new Date(formData.start_date);
@@ -107,23 +109,24 @@ export async function POST(req) {
 
     const slug = formData.name.replace(/\s+/g, "-").toLowerCase();
 
-    const newTraining = await prisma.training.create({
+    const newskp = await prisma.skp.create({
       data: {
         name: formData.name,
         slug,
         description: formData.description,
         start_date: startDate,
         end_date: endDate,
-        image_id: formData.image_id,
         status: formData.status,
-        price: formData.price, // Pastikan harga dikonversi ke number
-        schema_id: formData.schema_id, // Pastikan schema_id dikonversi ke number
+        image_id: parseInt(formData.image_id, 10),
+        type, // Sudah dipastikan hanya "SKP" atau "LISENSI"
+        price: parseFloat(formData.price),
+        schema_id: parseInt(formData.schema_id, 10),
       },
     });
 
-    return response(201, true, "Training successfully created", newTraining);
+    return response(201, true, "SKP successfully created", newskp);
   } catch (error) {
-    return response(500, false, "Failed to create training", null, {
+    return response(500, false, "Failed to create SKP", null, {
       error: error.message,
     });
   }
