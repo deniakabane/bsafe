@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id    Int    @id @default(autoincrement())
-  name  String  @unique @db.VarChar(191)
+  name  String  @db.VarChar(191)
   email String  @unique @db.VarChar(191)
   phone String  @unique @db.VarChar(191)
   full_address       String  @db.VarChar(191)
@@ -25,16 +25,15 @@ model User {
   registration_type  String  @db.VarChar(191) 
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
-
 }
 
 model AdminUser {
   id    Int    @id @default(autoincrement())
-  name  String  @unique @db.VarChar(191)
+  name  String  @db.VarChar(191)
   email String  @unique @db.VarChar(191)
   phone String  @unique @db.VarChar(191)
   full_address       String  @db.VarChar(191)
-  national_id_number String  @unique @db.VarChar(191)
+  national_id_number String  @db.VarChar(191)
   gender             String  @db.VarChar(50)
   blood_type         String  @db.VarChar(10)
   birth_place        String  @db.VarChar(191)
@@ -53,11 +52,15 @@ model UserTraining {
   user_id         Int    
   training_id     Int    
   certificate_no  String @db.VarChar(191)  
-  theme           String @db.VarChar(191)  
+  theme           String @db.VarChar(191) 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt 
 
   @@index([user_id])  
   @@index([training_id])  
   @@index([certificate_no])  
+
+  @@map("user_training")
 }
 
 
@@ -66,10 +69,14 @@ model UserCompany {
   user_id        Int
   company_id     Int
   still_working  Boolean @default(true) 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
   
   @@unique([user_id, company_id]) 
   @@index([user_id])
   @@index([company_id])
+
+  @@map("user_company")
 }
 
 model Company {
@@ -83,10 +90,11 @@ model Company {
   hrd_wa           String?  @db.VarChar(20)
   province         String?   @db.VarChar(100)
   city             String?   @db.VarChar(100)
+   finance_pic      String?  @db.VarChar(191)
+  finance_phone    String?  @db.VarChar(20)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
-  finance_pic      String?  @db.VarChar(191)
-  finance_phone    String?  @db.VarChar(20)
+ 
 }
 
 model Training {
@@ -127,5 +135,84 @@ model SchemaGroup {
   updated_at  DateTime  @updatedAt @map("updated_at")
 
   schemas     Schema[]
+
+  @@map("schema_group")
 }
 
+model MasterDocument {
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  name       String  @db.VarChar(191)
+  url        String  @db.Text
+  type       String  @db.VarChar(50) 
+  status     String  @db.VarChar(50) 
+  training_id Int?   
+  skp_id     Int?    
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id])
+  @@index([skp_id])
+  @@index([training_id])
+
+  @@map("master_document")
+
+}
+
+model Reseller {
+  id       Int     @id @default(autoincrement())
+  name     String  @db.VarChar(191)
+  admin_id Int
+  type     String  @db.VarChar(50) 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([admin_id])
+  @@index([type])
+
+}
+
+model History {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  training_id Int
+  nominal     Decimal  @db.Decimal(10,2) 
+  proof_of_tf String?  @db.VarChar(255)   // bukti tf
+  reseller_id Int?
+  status      String   @db.VarChar(20)   
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([user_id])
+  @@index([training_id])
+  @@index([reseller_id])
+  @@index([status])
+
+}
+
+model ProductAppeal {
+  id     Int     @id @default(autoincrement())
+  name   String  @db.VarChar(191)
+  price  Float
+  status String  @db.VarChar(50)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("product_appeal")
+}
+
+model ProductAppealDetail {
+  id         Int     @id @default(autoincrement())
+  product_id  Int
+  appeal_id   Int
+  type       String  @db.VarChar(50)
+  status     String  @db.VarChar(50)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([product_id])
+  @@index([appeal_id])
+
+  @@map("product_appeal_detail")
+
+}
