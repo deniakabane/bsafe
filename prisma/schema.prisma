@@ -39,17 +39,21 @@ model AdminUser {
   name  String  @db.VarChar(191)
   email String  @unique @db.VarChar(191)
   phone String  @unique @db.VarChar(191)
+  password       String  @db.VarChar(191)
   full_address       String  @db.VarChar(191)
   national_id_number String  @db.VarChar(191)
   gender             String  @db.VarChar(50)
   blood_type         String  @db.VarChar(10)
   birth_place        String  @db.VarChar(191)
   birth_date         DateTime
+  level              String  @default("admin")
   religion           String  @db.VarChar(50)
   domicile_province  String  @db.VarChar(191)
   domicile_city      String  @db.VarChar(191)
   last_education     String  @db.VarChar(191)
-  registration_type  String  @db.VarChar(191) 
+  registration_type  String  @db.VarChar(191)
+  created_at       DateTime  @default(now()) @map("created_at")
+  updated_at       DateTime  @updatedAt @map("updated_at") 
   
   @@map("admin_user")
 }
@@ -127,6 +131,8 @@ model Training {
   updated_at  DateTime  @updatedAt @map("updated_at")
   schema      Schema    @relation(fields: [schema_id], references: [id])
   userTrainings UserTraining[] 
+  productAppealTrainings ProductAppealTraining[] 
+
   @@index([schema_id])
 }
 
@@ -227,17 +233,27 @@ model MasterDocument {
 
 }
 
+enum ResellerType {
+  internal
+  external
+}
+
+enum PaymentStatus {
+  paid
+  unpaid
+  dp
+}
+
 model Reseller {
-  id       Int     @id @default(autoincrement())
-  name     String  @db.VarChar(191)
-  admin_id Int
-  type     String  @db.VarChar(50) 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id          Int          @id @default(autoincrement())
+  name        String?       @db.VarChar(191)
+  admin_id    Int?  @unique
+  type        ResellerType
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
 
   @@index([admin_id])
   @@index([type])
-
 }
 
 model HistoryPayment {
@@ -247,7 +263,6 @@ model HistoryPayment {
   nominal     Decimal  @db.Decimal(10,2) 
   proof_of_tf String?  @db.VarChar(255)   // bukti tf
   reseller_id Int?
-  
   status      String   @db.VarChar(20)   
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -267,20 +282,28 @@ model ProductAppeal {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
+  productAppealTrainings ProductAppealTraining[] 
   @@map("product_appeal")
 }
 
-model ProductAppealDetail {
-  id         Int     @id @default(autoincrement())
+enum ProductAppealType {
+  Training
+  Other
+}
+
+model ProductAppealTraining {
+  id   Int  @id @default(autoincrement())
   training_id  Int
   appeal_id   Int
-  type       String  @db.VarChar(50)
+  type      ProductAppealType @default(Training)
   status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
+   training   Training   @relation(fields: [training_id], references: [id])
+  appeal     ProductAppeal @relation(fields: [appeal_id], references: [id])
+
   @@index([training_id])
   @@index([appeal_id])
-
-  @@map("product_appeal_detail")
+  @@map("product_appeal_training")
 }
