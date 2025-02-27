@@ -82,7 +82,7 @@ export async function POST(req, context) {
     if (isNaN(appealId)) return response(400, false, "Invalid appeal ID");
 
     const jsonData = await req.json();
-    const { training_id, type = "Training", status = true } = jsonData;
+    const { training_id, type = "TRAINING", status = true } = jsonData;
 
     if (!training_id) {
       return response(400, false, "Training ID is required");

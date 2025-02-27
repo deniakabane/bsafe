@@ -61,14 +61,14 @@ export async function POST(req) {
       if (!adminExists) {
         return response(400, false, "Admin not found");
       }
-      jsonData.type = "internal";
+      jsonData.type = "INTERNAL";
       jsonData.name = null;
     } else {
       if (!jsonData.name) {
         return response(400, false, "Missing field: name");
       }
-      if (jsonData.type !== "external") {
-        return response(400, false, "Invalid type value. Must be 'external'");
+      if (jsonData.type !== "EXTERNAL") {
+        return response(400, false, "Invalid type value. Must be 'EXTERNAL'");
       }
     }
 

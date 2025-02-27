@@ -28,10 +28,11 @@ model User {
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
 
-    userCompanies      UserCompany[]
-      userTrainings      UserTraining[]
-      userSkps      UserSkp[]
-
+  userCompanies      UserCompany[]
+  userTrainings      UserTraining[]
+  userSkps      UserSkp[]
+  historyPayment    HistoryPayment[]
+  masterDocument    MasterDocument[]
 }
 
 model AdminUser {
@@ -130,8 +131,10 @@ model Training {
   created_at  DateTime  @default(now()) @map("created_at")
   updated_at  DateTime  @updatedAt @map("updated_at")
   schema      Schema    @relation(fields: [schema_id], references: [id])
-  userTrainings UserTraining[] 
+  userTrainings UserTraining[]
+  historyPayment HistoryPayment[] 
   productAppealTrainings ProductAppealTraining[] 
+  masterDocument    MasterDocument[]
 
   @@index([schema_id])
 }
@@ -157,6 +160,9 @@ model Skp {
   updated_at  DateTime  @updatedAt @map("updated_at")
   schema      Schema    @relation(fields: [schema_id], references: [id])
   userSkps UserSkp[] 
+  historyPayment HistoryPayment[] 
+  masterDocument    MasterDocument[]
+
 
   @@index([schema_id])
 }
@@ -213,35 +219,43 @@ model SchemaGroup {
   @@map("schema_group")
 }
 
+enum DocumentType {
+  USER
+  TRAINING
+  SKP
+}
+
 model MasterDocument {
-  id         Int     @id @default(autoincrement())
-  user_id    Int
-  name       String  @db.VarChar(191)
-  url        String  @db.Text
-  type       String  @db.VarChar(50) 
-  status     Boolean  @default(true) 
+  id          Int          @id @default(autoincrement())
+  user_id     Int
+  name        String       @db.VarChar(191)
+  url         String       @db.Text
+  type        DocumentType 
+  status      Boolean      @default(true) 
   training_id Int?   
-  skp_id     Int?    
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  skp_id      Int?    
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  user     User?     @relation(fields: [user_id], references: [id])
+  training Training? @relation(fields: [training_id], references: [id])
+  skp Skp?     @relation(fields: [skp_id], references: [id])
 
   @@index([user_id])
   @@index([skp_id])
   @@index([training_id])
-
   @@map("master_document")
-
 }
 
 enum ResellerType {
-  internal
-  external
+  INTERNAL
+  EXTERNAL
 }
 
 enum PaymentStatus {
-  paid
-  unpaid
-  dp
+  PAID
+  UNPAID
+  DP
 }
 
 model Reseller {
@@ -252,6 +266,8 @@ model Reseller {
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
+  historyPayment    HistoryPayment[]
+
   @@index([admin_id])
   @@index([type])
 }
@@ -259,13 +275,19 @@ model Reseller {
 model HistoryPayment {
   id          Int      @id @default(autoincrement())
   user_id     Int
-  training_id Int
+  training_id Int?
+  skp_id      Int?
   nominal     Decimal  @db.Decimal(10,2) 
-  proof_of_tf String?  @db.VarChar(255)   // bukti tf
-  reseller_id Int?
+  proof_of_tf Int   
+  reseller_id Int
   status      String   @db.VarChar(20)   
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+
+  user     User?     @relation(fields: [user_id], references: [id])
+  training Training? @relation(fields: [training_id], references: [id])
+  reseller Reseller?     @relation(fields: [reseller_id], references: [id])
+  skp Skp?     @relation(fields: [skp_id], references: [id])
 
   @@index([user_id])
   @@index([training_id])
@@ -287,15 +309,15 @@ model ProductAppeal {
 }
 
 enum ProductAppealType {
-  Training
-  Other
+  TRAINING
+  OTHER
 }
 
 model ProductAppealTraining {
   id   Int  @id @default(autoincrement())
   training_id  Int
   appeal_id   Int
-  type      ProductAppealType @default(Training)
+  type      ProductAppealType @default(TRAINING)
   status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt

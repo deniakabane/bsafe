@@ -32,13 +32,13 @@ export async function PUT(req, context) {
           "Admin is already assigned to another reseller"
         );
       }
-      jsonData.type = "internal";
+      jsonData.type = "INTERNAL";
       jsonData.name = null;
     } else {
       if (!jsonData.name) {
         return response(400, false, "Missing field: name");
       }
-      jsonData.type = "external";
+      jsonData.type = "EXTERNAL";
     }
 
     const updatedReseller = await prisma.reseller.update({
