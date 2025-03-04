@@ -34,6 +34,7 @@ model User {
   userSkps      UserSkp[]
   historyPayment    HistoryPayment[]
   masterDocument    MasterDocument[]
+  userDocument    UserDocument[]
 }
 
 enum adminType {
@@ -146,7 +147,8 @@ model Training {
   userTrainings UserTraining[]
   historyPayment HistoryPayment[] 
   productAppealTrainings ProductAppealTraining[] 
-  masterDocument    MasterDocument[]
+  // masterDocument    MasterDocument[]
+  userDocument     UserDocument[]
 
   @@index([schema_id])
 }
@@ -173,8 +175,8 @@ model Skp {
   schema      Schema    @relation(fields: [schema_id], references: [id])
   userSkps UserSkp[] 
   historyPayment HistoryPayment[] 
-  masterDocument    MasterDocument[]
-
+  // masterDocument    MasterDocument[]
+  userDocument    UserDocument[]
   @@index([schema_id])
 }
 
@@ -230,33 +232,54 @@ model SchemaGroup {
   @@map("schema_group")
 }
 
-enum DocumentType {
-  USER
-  TRAINING
-  SKP
+model DocumentType {
+  id   Int    @id @default(autoincrement())
+  name String @unique 
+
+  userDocument UserDocument[]
+  @@map("document_type")
 }
 
 model MasterDocument {
   id          Int          @id @default(autoincrement())
   user_id     Int
-  name        String       @db.VarChar(191)
-  url         String       @db.Text
-  type        DocumentType 
+  name        String       @db.VarChar(191) 
+  url         String       @db.Text         
+  type        String       @db.VarChar(50)  
   status      Boolean      @default(true) 
-  training_id Int?   
-  skp_id      Int?    
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
-  user     User?     @relation(fields: [user_id], references: [id])
-  training Training? @relation(fields: [training_id], references: [id])
-  skp Skp?     @relation(fields: [skp_id], references: [id])
+  user        User?        @relation(fields: [user_id], references: [id])
+  userDocument     UserDocument[]
 
   @@index([user_id])
-  @@index([skp_id])
-  @@index([training_id])
   @@map("master_document")
 }
+
+model UserDocument {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  document_id    Int
+  type_id        Int
+  training_id    Int?
+  skp_id         Int?
+  created_at    DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user           User @relation(fields: [user_id], references: [id])
+  document       MasterDocument @relation(fields: [document_id], references: [id])
+  type           DocumentType @relation(fields: [type_id], references: [id])
+  training       Training? @relation(fields: [training_id], references: [id])
+  skp            Skp? @relation(fields: [skp_id], references: [id])
+
+  @@index([training_id])
+  @@index([skp_id])
+  @@unique([user_id, document_id, type_id, training_id, skp_id])
+  @@map("user_document")
+}
+
+
 
 enum ResellerType {
   INTERNAL
@@ -300,6 +323,7 @@ model HistoryPayment {
   training Training? @relation(fields: [training_id], references: [id])
   reseller Reseller?     @relation(fields: [reseller_id], references: [id])
   skp Skp?     @relation(fields: [skp_id], references: [id])
+  
 
   @@index([user_id])
   @@index([training_id])
@@ -316,12 +340,12 @@ model categoryCertificate {
   status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  certificate Certificate[] 
 
-  certificate certificate[] 
   @@map("category_certificate")
 }
 
-model certificate {
+model Certificate {
   id     Int     @id @default(autoincrement())
   name   String  @db.VarChar(191)
   slug   String   
@@ -331,8 +355,9 @@ model certificate {
   status     Boolean  @default(true) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-
   certificate categoryCertificate @relation(fields: [certificate_id], references: [id])
+  
+  @@index([certificate_id])
   @@map("certificate")
 }
 
