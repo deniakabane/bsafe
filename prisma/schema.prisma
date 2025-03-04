@@ -308,8 +308,36 @@ model HistoryPayment {
   @@map("history_payment")
 }
 
-model ProductAppeal {
+model categoryCertificate {
   id     Int     @id @default(autoincrement())
+  name   String  @db.VarChar(191)
+  slug   String   
+  description String?  @db.LongText
+  status     Boolean  @default(true) 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  certificate certificate[] 
+  @@map("category_certificate")
+}
+
+model certificate {
+  id     Int     @id @default(autoincrement())
+  name   String  @db.VarChar(191)
+  slug   String   
+  certificate_id Int
+  price Int
+  description String?  @db.LongText
+  status     Boolean  @default(true) 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  certificate categoryCertificate @relation(fields: [certificate_id], references: [id])
+  @@map("certificate")
+}
+
+model ProductAppeal {
+  id     Int  @id @default(autoincrement())
   name   String  @db.VarChar(191)
   price  Float
   status     Boolean  @default(true) 
