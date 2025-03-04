@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function PUT(req, { params }) {
   try {
     const id = parseInt(params.id, 10);
-    if (isNaN(id)) return response(400, false, "Invalid admin user ID");
+    if (isNaN(id)) return response(400, false, "Invalid user ID");
 
     const jsonData = await req.json();
 
@@ -25,7 +25,7 @@ export async function PUT(req, { params }) {
       "domicile_province",
       "domicile_city",
       "last_education",
-      "level",
+      "registration_type",
     ];
 
     const missingFields = requiredFields.filter((field) => !jsonData[field]);
@@ -43,7 +43,7 @@ export async function PUT(req, { params }) {
     const uniqueFields = ["email", "phone", "national_id_number"];
     const duplicates = await Promise.all(
       uniqueFields.map(async (field) => {
-        const exists = await prisma.adminUser.findFirst({
+        const exists = await prisma.user.findFirst({
           where: {
             [field]: jsonData[field],
             id: { not: id },
@@ -70,48 +70,14 @@ export async function PUT(req, { params }) {
       return response(400, false, "Invalid birth_date format (YYYY-MM-DD)");
     }
 
-    const updatedAdminUser = await prisma.adminUser.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: { ...jsonData, birth_date: birthDate },
     });
 
-    return response(
-      200,
-      true,
-      "Admin user successfully updated",
-      updatedAdminUser
-    );
+    return response(200, true, "User successfully updated", updatedUser);
   } catch (error) {
-    console.error("Error updating admin user:", error);
-    return response(500, false, "Failed to update admin user", null, {
-      error: error.message,
-    });
-  }
-}
-
-export async function DELETE(req, { params }) {
-  try {
-    const adminUserId = parseInt(params.id, 10);
-
-    if (isNaN(adminUserId)) {
-      return response(400, false, "Invalid admin user ID");
-    }
-
-    const adminUserExists = await prisma.adminUser.findUnique({
-      where: { id: adminUserId },
-    });
-
-    if (!adminUserExists) {
-      return response(404, false, "Admin user not found");
-    }
-
-    await prisma.adminUser.delete({
-      where: { id: adminUserId },
-    });
-
-    return response(200, true, "Admin user successfully deleted");
-  } catch (error) {
-    return response(500, false, "Failed to delete admin user", null, {
+    return response(500, false, "Failed to update user", null, {
       error: error.message,
     });
   }
@@ -120,18 +86,17 @@ export async function DELETE(req, { params }) {
 export async function GET(req, { params }) {
   try {
     const id = parseInt(params.id, 10);
-    if (isNaN(id))
-      return response(400, false, "ID admin user harus berupa angka");
+    if (isNaN(id)) return response(400, false, "ID user harus berupa angka");
 
-    const adminUser = await prisma.adminUser.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id },
     });
 
-    if (!adminUser) return response(404, false, "Admin user tidak ditemukan");
+    if (!user) return response(404, false, "user tidak ditemukan");
 
-    return response(200, true, "Data admin user berhasil diambil", adminUser);
+    return response(200, true, "Data user berhasil diambil", user);
   } catch (error) {
-    return response(500, false, "Failed to retrieve admin user", null, {
+    return response(500, false, "Failed to retrieve user", null, {
       error: error.message,
     });
   }

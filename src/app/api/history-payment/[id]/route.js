@@ -4,101 +4,59 @@ const prisma = new PrismaClient();
 
 export async function PUT(req, context) {
   try {
-    const params = await context.params;
-    const id = parseInt(params.id, 10);
-    if (isNaN(id)) return response(400, false, "Invalid History Payment ID");
-
+    const id = parseInt(context.params.id, 10);
     const jsonData = await req.json();
-    const {
-      user_id,
-      training_id,
-      skp_id,
-      nominal,
-      proof_of_tf,
-      reseller_id,
-      status,
-    } = jsonData;
+    let { name, url, status, training_id, skp_id } = jsonData;
 
-    const historyPaymentExists = await prisma.historyPayment.findUnique({
+    if (!id) {
+      return response(400, false, "ID wajib diisi");
+    }
+
+    const existingDocument = await prisma.masterDocument.findUnique({
       where: { id },
     });
-    if (!historyPaymentExists) {
-      return response(404, false, "History Payment not found");
+    if (!existingDocument) {
+      return response(404, false, "Master Document tidak ditemukan");
     }
 
-    // Validasi user
-    if (user_id) {
-      const userExists = await prisma.user.findUnique({
-        where: { id: user_id },
-      });
-      if (!userExists) {
-        return response(400, false, "User not found");
-      }
-    }
-
-    // Validasi training
-    if (training_id) {
-      const trainingExists = await prisma.training.findUnique({
-        where: { id: training_id },
-      });
-      if (!trainingExists) {
-        return response(400, false, "Training not found");
-      }
-    }
-
-    // Validasi SKP
+    // Jika skp_id ada, training_id harus null, dan sebaliknya
     if (skp_id) {
-      const skpExists = await prisma.skp.findUnique({
-        where: { id: skp_id },
-      });
-      if (!skpExists) {
-        return response(400, false, "SKP not found");
-      }
+      training_id = null;
+    } else if (training_id) {
+      skp_id = null;
     }
 
-    // Validasi reseller
-    if (reseller_id) {
-      const resellerExists = await prisma.reseller.findUnique({
-        where: { id: reseller_id },
-      });
-      if (!resellerExists) {
-        return response(400, false, "Reseller not found");
-      }
+    // Pastikan status dikonversi ke Boolean jika bukan undefined
+    if (typeof status === "string") {
+      status = status.toLowerCase() === "true";
     }
 
-    const updatedHistoryPayment = await prisma.historyPayment.update({
+    let type = "USER";
+    if (training_id) type = "TRAINING";
+    if (skp_id) type = "SKP";
+
+    const updatedDocument = await prisma.masterDocument.update({
       where: { id },
       data: {
-        user: user_id ? { connect: { id: user_id } } : undefined,
+        name,
+        url,
+        status,
+        type,
         training: training_id
           ? { connect: { id: training_id } }
-          : training_id === null
-          ? { disconnect: true }
-          : undefined,
-        skp: skp_id
-          ? { connect: { id: skp_id } }
-          : skp_id === null
-          ? { disconnect: true }
-          : undefined,
-        reseller: reseller_id
-          ? { connect: { id: reseller_id } }
-          : reseller_id === null
-          ? { disconnect: true }
-          : undefined,
-        nominal,
-        proof_of_tf,
-        status,
+          : { disconnect: true },
+        skp: skp_id ? { connect: { id: skp_id } } : { disconnect: true },
       },
     });
 
     return response(
       200,
       true,
-      "History Payment berhasil diperbarui",
-      updatedHistoryPayment
+      "Master Document berhasil diperbarui",
+      updatedDocument
     );
   } catch (error) {
-    return response(500, false, "Failed to update History Payment", null, {
+    return response(500, false, "Failed to update Master Document", null, {
       error: error.message,
     });
   }

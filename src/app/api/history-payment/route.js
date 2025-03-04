@@ -27,6 +27,12 @@ export async function GET(req) {
       prisma.historyPayment.findMany({
         where: whereCondition,
         include: {
+          skp: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           training: {
             select: {
               id: true,

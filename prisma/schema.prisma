@@ -13,18 +13,19 @@ model User {
   name  String  @db.VarChar(191)
   email String  @unique @db.VarChar(191)
   phone String  @unique @db.VarChar(191)
-  password       String  @db.VarChar(191)
-  full_address       String  @db.VarChar(191)
-  national_id_number String  @unique @db.VarChar(191)
-  gender             String  @db.VarChar(50)
-  blood_type         String  @db.VarChar(10)
-  birth_place        String  @db.VarChar(191)
-  birth_date         DateTime
-  religion           String  @db.VarChar(50)
-  domicile_province  String  @db.VarChar(191)
-  domicile_city      String  @db.VarChar(191)
-  last_education     String  @db.VarChar(191)
-  registration_type  String  @db.VarChar(191) 
+  password       String?  @db.VarChar(191)
+  full_address       String?  @db.VarChar(191)
+  national_id_number String?  @unique @db.VarChar(191)
+  gender             String?  @db.VarChar(50)
+  blood_type         String?  @db.VarChar(10)
+  birth_place        String?  @db.VarChar(191)
+  birth_date         DateTime?
+  religion           String?  @db.VarChar(50)
+  domicile_province  Int?  
+  domicile_city      Int?  
+  last_education     String?  @db.VarChar(191)
+  registration_type  String?  @db.VarChar(191)
+  pasfoto          Int?  
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at")
 
@@ -34,6 +35,12 @@ model User {
   historyPayment    HistoryPayment[]
   masterDocument    MasterDocument[]
 }
+
+enum adminType {
+  ADMIN
+  SUPER_ADMIN
+}
+
 
 model AdminUser {
   id    Int    @id @default(autoincrement())
@@ -47,35 +54,40 @@ model AdminUser {
   blood_type         String  @db.VarChar(10)
   birth_place        String  @db.VarChar(191)
   birth_date         DateTime
-  level              String  @default("admin")
+  // level              String  @default("admin")
+  level              adminType
   religion           String  @db.VarChar(50)
   domicile_province  String  @db.VarChar(191)
   domicile_city      String  @db.VarChar(191)
   last_education     String  @db.VarChar(191)
-  registration_type  String  @db.VarChar(191)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at") 
   
   @@map("admin_user")
 }
 
+enum statusTraining {
+  CANCEL
+  DRAFT
+  PESERTA
+}
+
 model UserTraining {
   id              Int    @id @default(autoincrement())
   user_id         Int    
   training_id     Int    
-  certificate_no  String @db.VarChar(191)  
-  theme           String @db.VarChar(191) 
+  certificate_no  String? @db.VarChar(191)  
+  theme           String? @db.VarChar(191) 
+  status          statusTraining 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt 
 
   user     User     @relation(fields: [user_id], references: [id])
   training Training @relation(fields: [training_id], references: [id])
 
-
   @@index([user_id])  
   @@index([training_id])  
   @@index([certificate_no])  
-
   @@map("user_training")
 }
 
@@ -163,7 +175,6 @@ model Skp {
   historyPayment HistoryPayment[] 
   masterDocument    MasterDocument[]
 
-
   @@index([schema_id])
 }
 
@@ -172,8 +183,8 @@ model UserSkp {
   id              Int    @id @default(autoincrement())
   user_id         Int    
   skp_id     Int    
-  certificate_no  String @db.VarChar(191)  
-  theme           String @db.VarChar(191) 
+  certificate_no  String? @db.VarChar(191)  
+  theme           String? @db.VarChar(191) 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt 
 
@@ -276,11 +287,12 @@ model HistoryPayment {
   id          Int      @id @default(autoincrement())
   user_id     Int
   training_id Int?
+  appeal_id   Int?
   skp_id      Int?
-  nominal     Decimal  @db.Decimal(10,2) 
-  proof_of_tf Int   
-  reseller_id Int
-  status      String   @db.VarChar(20)   
+  nominal     Int?
+  proof_of_tf Int?   
+  reseller_id Int?
+  status      PaymentStatus
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 

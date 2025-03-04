@@ -42,6 +42,7 @@ export async function GET(req, context) {
           training_id: true,
           certificate_no: true,
           theme: true,
+          status: true,
           updated_at: true,
           training: {
             select: {

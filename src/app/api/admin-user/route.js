@@ -70,7 +70,6 @@ export async function POST(req) {
       "domicile_province",
       "domicile_city",
       "last_education",
-      "registration_type",
     ];
 
     const missingFields = requiredFields.filter((field) => !jsonData[field]);

@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 export async function PUT(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const params = await context.params;
+    const id = parseInt(params.id, 10);
     const jsonData = await req.json();
     const { name, url, status, training_id, skp_id } = jsonData;
 
@@ -58,7 +59,8 @@ export async function PUT(req, context) {
 
 export async function DELETE(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const params = await context.params;
+    const id = parseInt(params.id, 10);
     if (!id) {
       return response(400, false, "ID wajib diisi");
     }
@@ -74,7 +76,8 @@ export async function DELETE(req, context) {
 
 export async function GET(req, context) {
   try {
-    const id = parseInt(context.params.id, 10);
+    const params = await context.params;
+    const id = parseInt(params.id, 10);
     if (!id) {
       return response(400, false, "ID wajib diisi");
     }
