@@ -14,7 +14,6 @@ model User {
   email             String  @unique @db.VarChar(191)
   phone             String  @unique @db.VarChar(191)
   password          String? @db.VarChar(191)
-  full_name         String  @db.VarChar(191)
   national_id_number String? @unique @db.VarChar(191)
   gender            String? @db.VarChar(50)
   blood_type        String? @db.VarChar(10)
@@ -30,6 +29,7 @@ model User {
   education_level   String? @db.VarChar(50)
   university_name   String? @db.VarChar(191) 
   diploma_number    String? @db.VarChar(191) 
+  referensi   String? @db.VarChar(191) 
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 

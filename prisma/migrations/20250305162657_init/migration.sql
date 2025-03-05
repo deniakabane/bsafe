@@ -5,7 +5,6 @@ CREATE TABLE `User` (
     `email` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NULL,
-    `full_name` VARCHAR(191) NOT NULL,
     `national_id_number` VARCHAR(191) NULL,
     `gender` VARCHAR(50) NULL,
     `blood_type` VARCHAR(10) NULL,
@@ -21,6 +20,7 @@ CREATE TABLE `User` (
     `education_level` VARCHAR(50) NULL,
     `university_name` VARCHAR(191) NULL,
     `diploma_number` VARCHAR(191) NULL,
+    `referensi` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 

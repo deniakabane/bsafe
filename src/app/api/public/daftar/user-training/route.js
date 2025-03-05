@@ -8,7 +8,8 @@ export async function POST(req) {
     const body = await req.json();
     console.log("Request Body:", body);
 
-    const { name, email, phone, type, bundling_id, training_id } = body;
+    const { name, email, phone, type, bundling_id, training_id, referensi } =
+      body;
 
     if (!name || !email || !phone || !type) {
       return response(400, false, "Nama, email, phone, dan type wajib diisi");
@@ -53,6 +54,7 @@ export async function POST(req) {
       return response(400, false, "Type harus 'bundling' atau 'training'");
     }
 
+    // Validasi training ID yang dikirim ada di database
     const validTrainings = await prisma.training.findMany({
       where: { id: { in: trainingIds } },
       select: { id: true },
@@ -64,6 +66,7 @@ export async function POST(req) {
       return response(400, false, "Satu atau lebih Training ID tidak valid");
     }
 
+    // Cek apakah email atau phone sudah terdaftar
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ email }, { phone }] },
     });
@@ -72,10 +75,12 @@ export async function POST(req) {
       return response(400, false, "Email atau phone sudah terdaftar");
     }
 
+    // Simpan user baru dengan referensi
     const user = await prisma.user.create({
-      data: { name, email, phone },
+      data: { name, email, phone, referensi: referensi || null },
     });
 
+    // Tambahkan ke tabel userTraining
     await prisma.userTraining.createMany({
       data: validTrainingIds.map((trainingId) => ({
         user_id: user.id,
