@@ -5,7 +5,7 @@ CREATE TABLE `User` (
     `email` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NULL,
-    `full_address` VARCHAR(191) NULL,
+    `full_name` VARCHAR(191) NOT NULL,
     `national_id_number` VARCHAR(191) NULL,
     `gender` VARCHAR(50) NULL,
     `blood_type` VARCHAR(10) NULL,
@@ -15,8 +15,12 @@ CREATE TABLE `User` (
     `domicile_province` INTEGER NULL,
     `domicile_city` INTEGER NULL,
     `last_education` VARCHAR(191) NULL,
-    `registration_type` VARCHAR(191) NULL,
     `pasfoto` INTEGER NULL,
+    `full_address` VARCHAR(191) NULL,
+    `region` VARCHAR(50) NULL,
+    `education_level` VARCHAR(50) NULL,
+    `university_name` VARCHAR(191) NULL,
+    `diploma_number` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -35,15 +39,15 @@ CREATE TABLE `admin_user` (
     `password` VARCHAR(191) NOT NULL,
     `full_address` VARCHAR(191) NOT NULL,
     `national_id_number` VARCHAR(191) NOT NULL,
-    `gender` VARCHAR(50) NOT NULL,
-    `blood_type` VARCHAR(10) NOT NULL,
-    `birth_place` VARCHAR(191) NOT NULL,
-    `birth_date` DATETIME(3) NOT NULL,
+    `gender` VARCHAR(50) NULL,
+    `blood_type` VARCHAR(10) NULL,
+    `birth_place` VARCHAR(191) NULL,
+    `birth_date` DATETIME(3) NULL,
     `level` ENUM('ADMIN', 'SUPER_ADMIN') NOT NULL,
-    `religion` VARCHAR(50) NOT NULL,
-    `domicile_province` VARCHAR(191) NOT NULL,
-    `domicile_city` VARCHAR(191) NOT NULL,
-    `last_education` VARCHAR(191) NOT NULL,
+    `religion` VARCHAR(50) NULL,
+    `domicile_province` VARCHAR(191) NULL,
+    `domicile_city` VARCHAR(191) NULL,
+    `last_education` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -66,6 +70,20 @@ CREATE TABLE `user_training` (
     INDEX `user_training_user_id_idx`(`user_id`),
     INDEX `user_training_training_id_idx`(`training_id`),
     INDEX `user_training_certificate_no_idx`(`certificate_no`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `user_training_detail` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `user_training_id` INTEGER NOT NULL,
+    `company_name` VARCHAR(191) NULL,
+    `company_address` VARCHAR(191) NULL,
+    `institution` VARCHAR(191) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `user_training_detail_user_training_id_key`(`user_training_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -328,6 +346,9 @@ ALTER TABLE `user_training` ADD CONSTRAINT `user_training_user_id_fkey` FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE `user_training` ADD CONSTRAINT `user_training_training_id_fkey` FOREIGN KEY (`training_id`) REFERENCES `Training`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `user_training_detail` ADD CONSTRAINT `user_training_detail_user_training_id_fkey` FOREIGN KEY (`user_training_id`) REFERENCES `user_training`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `user_company` ADD CONSTRAINT `user_company_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
