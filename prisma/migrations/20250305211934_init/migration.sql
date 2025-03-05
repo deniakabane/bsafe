@@ -1,4 +1,15 @@
 -- CreateTable
+CREATE TABLE `Session` (
+    `session_id` VARCHAR(191) NOT NULL,
+    `admin_id` INTEGER NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `expires_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Session_admin_id_key`(`admin_id`),
+    PRIMARY KEY (`session_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
@@ -14,7 +25,6 @@ CREATE TABLE `User` (
     `domicile_province` INTEGER NULL,
     `domicile_city` INTEGER NULL,
     `last_education` VARCHAR(191) NULL,
-    `pasfoto` INTEGER NULL,
     `full_address` VARCHAR(191) NULL,
     `region` VARCHAR(50) NULL,
     `education_level` VARCHAR(50) NULL,
@@ -340,6 +350,9 @@ CREATE TABLE `product_appeal_training` (
     INDEX `product_appeal_training_appeal_id_idx`(`appeal_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Session` ADD CONSTRAINT `Session_admin_id_fkey` FOREIGN KEY (`admin_id`) REFERENCES `admin_user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `user_training` ADD CONSTRAINT `user_training_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

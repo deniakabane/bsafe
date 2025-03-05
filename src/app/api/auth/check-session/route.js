@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { prisma } from "@/libs/prisma";
 
 export async function middleware(req) {
@@ -11,8 +10,7 @@ export async function middleware(req) {
     return NextResponse.next();
   }
 
-  // Ambil session dari cookies Next.js
-  const sessionId = cookies().get("admin_session")?.value;
+  const sessionId = req.cookies.get("admin_session")?.value;
   if (!sessionId) {
     console.log("⛔ No session ID found");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -20,7 +18,6 @@ export async function middleware(req) {
 
   console.log("🔍 Session ID from Cookie:", sessionId);
 
-  // Cek session di database
   const session = await prisma.session.findUnique({ where: { id: sessionId } });
   if (!session || new Date(session.expires_at) < new Date()) {
     console.log("⛔ Invalid or expired session");

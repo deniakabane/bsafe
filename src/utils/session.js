@@ -1,17 +1,41 @@
-import { cookies } from "next/headers";
+import { PrismaClient } from "@prisma/client";
+import { randomUUID } from "crypto";
 
-export function setSessionCookie(response, adminId) {
-  const sessionId = crypto.randomUUID(); // Generate UUID unik
-  console.log("🆔 Generated Session ID:", sessionId);
+const prisma = new PrismaClient();
 
-  response.cookies.set("admin_session", sessionId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 1 minggu
-  });
+export async function setSessionInDB(response, adminId) {
+  try {
+    const sessionId = randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 2);
 
-  // Simpan session di database (jika perlu)
-  return sessionId;
+    console.log("📝 Creating session in DB for user:", adminId);
+
+    // Hapus session lama jika sudah ada
+    await prisma.session.deleteMany({ where: { admin_id: adminId } });
+
+    // Simpan session ke database
+    const session = await prisma.session.create({
+      data: {
+        session_id: sessionId,
+        admin_id: adminId, // GANTI admin_user_id -> admin_id (sesuai schema)
+        expires_at: expiresAt,
+      },
+    });
+
+    console.log("✅ Session created successfully:", session);
+
+    // Set cookie
+    response.cookies.set("admin_session", sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 2 * 60 * 60,
+    });
+
+    return sessionId;
+  } catch (error) {
+    console.error("🔥 Error in setSessionInDB:", error);
+    throw error;
+  }
 }

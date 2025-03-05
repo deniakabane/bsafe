@@ -1,17 +1,16 @@
-import { NextResponse } from "next/server";
+import { prisma } from "@/libs/prisma";
+import { cookies } from "next/headers";
 
 export async function POST() {
-  const response = NextResponse.json({ message: "Logout successful" });
+  const sessionId = cookies().get("admin_session")?.value;
+  if (!sessionId)
+    return Response.json({ message: "No session found" }, { status: 401 });
 
-  // Hapus session dengan maxAge 0
-  response.cookies.set("admin_session", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  // Hapus session di database
+  await prisma.session.delete({ where: { id: sessionId } });
 
-  console.log("🚪 User Logged Out");
-  return response;
+  // Hapus session dari cookies
+  cookies().delete("admin_session");
+
+  return Response.json({ message: "Logout successful" });
 }

@@ -1,44 +1,31 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { setSessionCookie } from "@/utils/session";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/libs/prisma";
+import { cookies } from "next/headers";
 
 export async function POST(req) {
-  try {
-    const { email, password } = await req.json();
-    console.log("🔍 Incoming Login Request:", { email });
+  const { email } = await req.json();
 
-    const adminUser = await prisma.adminUser.findUnique({ where: { email } });
-    if (!adminUser) {
-      console.log("❌ User Not Found");
-      return NextResponse.json(
-        { message: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
+  // Cari user di database
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user)
+    return Response.json({ message: "Invalid credentials" }, { status: 401 });
 
-    console.log("🔑 Stored Password Hash:", adminUser.password);
-    const isValidPassword = await bcrypt.compare(password, adminUser.password);
-    if (!isValidPassword) {
-      console.log("❌ Incorrect Password");
-      return NextResponse.json(
-        { message: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
+  // Buat session baru
+  const sessionId = crypto.randomUUID();
+  await prisma.session.create({
+    data: {
+      id: sessionId,
+      user_id: user.id,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expire dalam 24 jam
+    },
+  });
 
-    const response = NextResponse.json({ message: "Login successful" });
-    const sessionId = setSessionCookie(response, adminUser.id); // Simpan session unik
+  // Simpan session di cookies
+  cookies().set("admin_session", sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 24 * 60 * 60, // 1 hari
+  });
 
-    console.log("✅ Login Successful! Session ID:", sessionId);
-    return response;
-  } catch (error) {
-    console.error("🔥 Login error:", error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
+  return Response.json({ message: "Login successful!" });
 }

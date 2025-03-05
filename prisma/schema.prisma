@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Session {
+  session_id String @id
+  admin_id   Int    @unique
+  created_at DateTime @default(now())
+  expires_at DateTime
+
+  adminUser  AdminUser @relation(fields: [admin_id], references: [id], onDelete: Cascade)
+}
+
+
 
 model User {
   id                Int     @id @default(autoincrement())
@@ -23,7 +33,6 @@ model User {
   domicile_province Int?  
   domicile_city     Int?  
   last_education    String? @db.VarChar(191)
-  pasfoto           Int?  
   full_address      String? @db.VarChar(191)
   region           String? @db.VarChar(50) 
   education_level   String? @db.VarChar(50)
@@ -67,7 +76,8 @@ model AdminUser {
   last_education     String?  @db.VarChar(191)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at") 
-  
+
+   session Session[]
   @@map("admin_user")
 }
 
