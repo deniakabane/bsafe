@@ -21,6 +21,11 @@ export default function SuccessPage() {
           </div>
 
           <div>
+            <p className="text-sm font-medium text-gray-500">Email</p>
+            <p className="text-lg font-semibold text-gray-900">@Nanda Jati Sampurna</p>
+          </div>
+
+          <div>
             <p className="text-sm font-medium text-gray-500">No WhatsApp</p>
             <p className="text-lg font-semibold text-gray-900">082912928192</p>
           </div>
