@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
+import { checkSession } from "@/utils/session";
+
 import {
   getQueryParams,
   buildSearchCondition,
@@ -10,6 +12,11 @@ const prisma = new PrismaClient();
 
 export async function GET(req) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const { page, limit, offset, search, sortField, sortOrder } =
       getQueryParams(req.url);
     const searchCondition = buildSearchCondition("name", search);
@@ -44,6 +51,12 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
+
     const jsonData = await req.json();
     const requiredFields = ["name", "description"];
 

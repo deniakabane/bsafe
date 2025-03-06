@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Session {
+  session_id String @id
+  user_id    Int?    @unique
+  admin_id    Int?    @unique
+  role       String
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  user       User?      @relation(fields: [user_id], references: [id])
+  adminUser  AdminUser? @relation(fields: [admin_id], references: [id])
+}
+
 
 model User {
   id                Int     @id @default(autoincrement())
@@ -39,6 +51,7 @@ model User {
   historyPayment    HistoryPayment[]
   masterDocument    MasterDocument[]
   userDocument    UserDocument[]
+   session  Session?
 }
 
 enum adminType {
@@ -67,7 +80,7 @@ model AdminUser {
   last_education     String?  @db.VarChar(191)
   created_at       DateTime  @default(now()) @map("created_at")
   updated_at       DateTime  @updatedAt @map("updated_at") 
-  
+   session  Session?
   @@map("admin_user")
 }
 

@@ -1,0 +1,26 @@
+// import { NextResponse } from "next/server";
+
+// export function middleware(req) {
+//   console.log("🔍 Middleware Activated");
+//   console.log("Request Path:", req.nextUrl.pathname);
+
+//   if (req.nextUrl.pathname.startsWith("/api/public")) {
+//     console.log("✅ Public API Access Allowed");
+//     return NextResponse.next();
+//   }
+
+//   const adminSession = req.cookies.get("admin_session")?.value;
+//   console.log("Session Cookie:", adminSession);
+
+//   if (!adminSession) {
+//     console.log("❌ Unauthorized - No Session Found");
+//     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+//   }
+
+//   console.log("✅ Authorized - Session Found");
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: "/api/:path*",
+// };

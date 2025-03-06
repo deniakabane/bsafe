@@ -1,10 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
+import { checkSession } from "@/utils/session";
 
 const prisma = new PrismaClient();
 
 export async function GET(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
     const userId = parseInt(params.id, 10);
     if (isNaN(userId))
@@ -46,6 +52,11 @@ export async function GET(req, context) {
 
 export async function PUT(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const body = await req.json();
     const params = await context.params;
     const user_id = parseInt(params.id, 10);

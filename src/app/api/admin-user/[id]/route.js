@@ -3,9 +3,15 @@ import response from "@/utils/response";
 import { validateNationalId } from "@/utils/validateNationalId";
 
 const prisma = new PrismaClient();
+import { checkSession } from "@/utils/session";
 
 export async function PUT(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "Invalid admin user ID");
 
@@ -91,6 +97,11 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const adminUserId = parseInt(params.id, 10);
 
     if (isNaN(adminUserId)) {
@@ -119,6 +130,11 @@ export async function DELETE(req, { params }) {
 
 export async function GET(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const id = parseInt(params.id, 10);
     if (isNaN(id))
       return response(400, false, "ID admin user harus berupa angka");

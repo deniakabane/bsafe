@@ -1,9 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
 const prisma = new PrismaClient();
+import { checkSession } from "@/utils/session";
 
 export async function PUT(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const id = parseInt(context.params.id, 10);
     const jsonData = await req.json();
     let { name, url, status, training_id, skp_id } = jsonData;
@@ -64,6 +70,11 @@ export async function PUT(req, context) {
 
 export async function DELETE(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "Invalid History Payment ID");
@@ -89,6 +100,11 @@ export async function DELETE(req, context) {
 
 export async function GET(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
     const id = parseInt(params.id, 10);
 

@@ -1,11 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
 import { validateNationalId } from "@/utils/validateNationalId";
+import { checkSession } from "@/utils/session";
 
 const prisma = new PrismaClient();
 
 export async function PUT(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "Invalid user ID");
 
@@ -90,6 +96,11 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const userId = parseInt(params.id, 10);
 
     if (isNaN(userId)) {
@@ -133,6 +144,11 @@ export async function DELETE(req, { params }) {
 }
 
 export async function GET(req, { params }) {
+  const sessionResponse = await checkSession(req);
+
+  if (sessionResponse.status === 401) {
+    return sessionResponse;
+  }
   try {
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "ID user harus berupa angka");

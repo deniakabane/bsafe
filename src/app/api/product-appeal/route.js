@@ -5,11 +5,17 @@ import {
   buildSearchCondition,
   getPaginationMeta,
 } from "@/utils/queryHelper";
+import { checkSession } from "@/utils/session";
 
 const prisma = new PrismaClient();
 
 export async function GET(req) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const {
       page,
       limit,
@@ -61,6 +67,11 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const jsonData = await req.json();
     const { name, price, status } = jsonData;
 

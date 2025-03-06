@@ -1,10 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
-
+import { checkSession } from "@/utils/session";
 const prisma = new PrismaClient();
 
 export async function PUT(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = context.params;
     const appealId = parseInt(params.id, 10);
     const trainingId = parseInt(params.trainingId, 10);
@@ -58,6 +63,11 @@ export async function PUT(req, context) {
 
 export async function DELETE(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = context.params;
     const appealId = parseInt(params.id, 10);
     const trainingId = parseInt(params.trainingId, 10);
@@ -102,6 +112,11 @@ export async function DELETE(req, context) {
 
 export async function GET(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = context.params;
     const appealId = parseInt(params.id, 10);
     const trainingId = parseInt(params.trainingId, 10);

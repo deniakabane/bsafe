@@ -1,10 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
+import { checkSession } from "@/utils/session";
 
 const prisma = new PrismaClient();
 
 export async function PUT(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
 
     const id = parseInt(params.id, 10);
@@ -61,6 +67,11 @@ export async function PUT(req, context) {
 
 export async function DELETE(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
     const id = parseInt(params.id, 10);
     if (isNaN(id)) return response(400, false, "Invalid reseller ID");
@@ -80,6 +91,11 @@ export async function DELETE(req, context) {
 
 export async function GET(req, context) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const params = await context.params;
 
     const id = parseInt(params.id, 10);

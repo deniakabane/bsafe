@@ -6,9 +6,15 @@ import {
   getPaginationMeta,
 } from "@/utils/queryHelper";
 const prisma = new PrismaClient();
+import { checkSession } from "@/utils/session";
 
 export async function GET(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const userId = parseInt(params.id, 10);
     if (isNaN(userId)) return response(400, false, "Invalid user ID");
 
@@ -74,6 +80,11 @@ export async function GET(req, { params }) {
 
 export async function POST(req, { params }) {
   try {
+    const sessionResponse = await checkSession(req);
+
+    if (sessionResponse.status === 401) {
+      return sessionResponse;
+    }
     const userId = parseInt(params.id, 10);
     if (isNaN(userId)) return response(400, false, "Invalid user ID");
 
