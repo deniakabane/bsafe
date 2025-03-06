@@ -13,10 +13,10 @@ const prisma = new PrismaClient();
 export async function GET(req) {
   try {
     const sessionResponse = await checkSession(req);
-
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
+
     const { page, limit, offset, search, sortField, sortOrder } =
       getQueryParams(req.url);
     const searchCondition = buildSearchCondition("name", search);
@@ -52,8 +52,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const sessionResponse = await checkSession(req);
-
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
 

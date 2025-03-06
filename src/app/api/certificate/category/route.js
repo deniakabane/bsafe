@@ -13,7 +13,7 @@ export async function GET(req) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const { page, limit, offset, search, sortField, sortOrder } =
@@ -53,7 +53,7 @@ export async function POST(req) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const jsonData = await req.json();

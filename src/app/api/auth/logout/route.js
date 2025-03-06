@@ -1,38 +1,18 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server"; // Import NextResponse
-import { cookies } from "next/headers"; // Mengambil cookies di Next.js
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
 
-export async function POST(req) {
+export async function POST() {
   try {
-    // Mengambil session_id dari cookies
     const cookieStore = cookies();
-    const sessionCookie = cookieStore.get("session_id"); // Mengambil cookie berdasarkan nama
+    const sessionId = cookieStore.get("admin_session")?.value; // Ganti sesuai nama cookie
 
-    // Pastikan session_id ada
-    if (!sessionCookie) {
+    if (!sessionId) {
       return NextResponse.json(
         { message: "No session found. You are not logged in." },
         { status: 400 }
-      );
-    }
-
-    const sessionId = sessionCookie.value; // Akses properti `value` untuk mendapatkan session ID
-
-    console.log("Session ID from cookies:", sessionId); // Log session ID for debugging
-
-    // Cari session di database berdasarkan session_id
-    const session = await prisma.session.findUnique({
-      where: { session_id: sessionId }, // Gunakan session_id langsung
-    });
-
-    console.log("Session found in DB:", session); // Log the session for debugging
-
-    if (!session) {
-      return NextResponse.json(
-        { message: "Invalid session ID" },
-        { status: 404 }
       );
     }
 
@@ -41,15 +21,20 @@ export async function POST(req) {
       where: { session_id: sessionId },
     });
 
-    // Hapus session cookie
-    cookieStore.delete("session_id"); // Menghapus cookie session_id
+    // **Buat response & hapus cookie dengan nama yang benar**
+    const response = NextResponse.json({ message: "Successfully logged out" });
 
-    return NextResponse.json(
-      { message: "Successfully logged out" },
-      { status: 200 }
-    );
+    response.cookies.set("admin_session", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      expires: new Date(0), // Cara yang benar untuk menghapus cookie
+    });
+
+    return response;
   } catch (error) {
-    console.error("Error during logout:", error); // Log the actual error for debugging
+    console.error("Error during logout:", error);
     return NextResponse.json(
       { message: "Internal Server Error", error: error.message },
       { status: 500 }

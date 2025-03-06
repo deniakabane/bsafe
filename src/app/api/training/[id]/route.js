@@ -8,7 +8,7 @@ export async function PUT(req, context) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const params = await context.params;
@@ -94,7 +94,7 @@ export async function DELETE(req, context) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const params = await context.params;
@@ -115,7 +115,7 @@ export async function GET(req, context) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const params = await context.params;

@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const userId = parseInt(params.id, 10);
@@ -82,7 +82,7 @@ export async function POST(req, { params }) {
   try {
     const sessionResponse = await checkSession(req);
 
-    if (sessionResponse.status === 401) {
+    if (!sessionResponse.success) {
       return sessionResponse;
     }
     const userId = parseInt(params.id, 10);
