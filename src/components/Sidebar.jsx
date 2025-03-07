@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Key, Bell, LifeBuoy } from "lucide-react"; // Ikon dari Lucide React
+import { User, Key, Bell, LifeBuoy, LogOut } from "lucide-react"; // Ikon dari Lucide React
 
 const menuItems = [
   { name: "Data Diri", href: "/akun/edit-profile", icon: <User className="w-5 h-5" /> },
@@ -33,7 +33,7 @@ export default function Sidebar() {
         {menuItems.map((item) => (
           <Link key={item.name} href={item.href} className="block">
             <span
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-purple-100 hover:text-blue-800 transition ${
+              className={`flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-blue-800 transition ${
                 pathname === item.href ? "bg-blue-950 text-white" : ""
               }`}
             >
@@ -43,6 +43,15 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
+
+      <button
+        className="mt-auto flex items-center justify-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition"
+        onClick={() => alert("Anda telah logout!")}
+      >
+        <LogOut className="w-5 h-5" />
+        <span className="text-sm font-medium">Logout</span>
+      </button>
+      
     </aside>
   );
 }

@@ -36,7 +36,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* Tempat Dokumen */}
-        <Card className="p-8 bg-white shadow-lg rounded-lg">
+        {/* <Card className="p-8 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Training</h2>
 
           <div className="grid grid-cols-2 gap-6">
@@ -49,7 +49,7 @@ export default function ProfilePage() {
               <InputField label="BNSP" placeholder="nanda@gmail.com" />
             </div>
           </div>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

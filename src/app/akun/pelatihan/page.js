@@ -1,66 +1,125 @@
+"use client";
+
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { User, FileText, Award, FileSignature, Scan } from "lucide-react";
+import Link from "next/link";
 
-export default function ProfilePage() {
+// Data contoh untuk tabel
+const dummyData = [
+  {
+    id: 1,
+    pelatihan: "Ahli K3 Umum ",
+    tanggal: "28 FEB 2025",
+  },
+  {
+    id: 2,
+    pelatihan: "Tenaga Kerja Tingkat Tinggi (TKBT) ",
+    tanggal: "10 MAR 2025",
+  },
+];
+
+export default function PelatihanPage() {
+  const [search, setSearch] = useState("");
+
   return (
-    <div className="ml-64 p-8 min-h-screen flex justify-center">
-      <div className="w-full max-w-4xl">
-        {/* Form Profil */}
-        <Card className="p-8 bg-white shadow-lg rounded-lg mb-6">
-          {/* Header */}
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Pelatihan</h2>
+    <div className="ml-64 p-6 min-h-screen">
+      {/* Card Utama (Header + Search + Tabel) */}
+      <Card className="p-6 bg-white shadow-md rounded-lg">
+        {/* Header + Search */}
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-800">Pelatihan</h1>
+          <Input
+            className="w-1/3 px-4 py-2 border rounded-md"
+            placeholder="Cari..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <InputField label="Nama" placeholder="Your First Name" />
-              <InputField label="Phone" placeholder="089512345678" />
-              <InputField label="Golongan Darah" placeholder="AB +" />
-              <InputField label="Agama" placeholder="Kongguan" />
-              <InputField label="Kota" placeholder="Bogor" />
-              <InputField label="Alamat Lengkap" placeholder="Bogor" />
-              <InputField label="Gelar" placeholder="S1" />
-              <InputField label="Diploma Number" placeholder="123455" />
-            </div>
+        {/* Tabel */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-gray-700 text-left">
+                <th className="px-4 py-2">NO</th>
+                <th className="px-4 py-2">PELATIHAN</th>
+                <th className="px-4 py-2">TANGGAL</th>
+                <th className="px-4 py-2">AKSI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dummyData.map((item, index) => (
+                <tr key={item.id} className="border-b">
+                  <td className="px-4 py-2">{String(index + 1).padStart(2, "0")}</td>
+                  <td className="px-4 py-2">{item.pelatihan}</td>
+                  <td className="px-4 py-2">{item.tanggal}</td>
+                  <td className="px-4 py-2 flex gap-2">
+                    
+                    {/* Button Data Diri */}
+                    <div className="relative group">
+                      <Link href="/akun/pelatihan/datadiri">
+                        <Button className="p-2 bg-blue-950 hover:bg-blue-800 rounded-md">
+                          <User size={20} />
+                        </Button>
+                      </Link>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-[#363636] rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                      Data Diri
+                      </span>
+                    </div>
 
-            <div className="space-y-4">
-              <InputField label="Email" placeholder="nanda@gmail.com" />
-              <InputField label="Jenis Kelamin" placeholder="Laki Laki" />
-              <InputField label="Tanggal Lahir" placeholder="4 Juni 2004" />
-              <InputField label="Provinsi" placeholder="Jawa Barat" />
-              <InputField label="Pendidikan Terakhir" placeholder="Your Last Education" />
-              <InputField label="Wilayah" placeholder="JABODETABEK" />
-              <InputField label="Universitas" placeholder="Univ Englekan" />
-              <InputField label="Referensi" placeholder="Website" />
-            </div>
-          </div>
-        </Card>
+                    {/* Button Dokumen */}
+                    <div className="relative group">
+                     
+                      <Link href="/akun/pelatihan/dokumen">
+                        <Button className="p-2 bg-blue-950 hover:bg-blue-800 rounded-md">
+                          <FileText size={20} />
+                        </Button>
+                      </Link>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-[#363636] rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        Dokumen
+                      </span>
+                    </div>  
 
-        {/* Tempat Dokumen */}
-        <Card className="p-8 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Tempat Dokumen</h2>
+                    {/* Button E-Sertifikat */}
+                    <div className="relative group">
+                      <Button className="p-2 bg-blue-950 hover:bg-blue-800 rounded-md">
+                        <Award size={20} />
+                      </Button>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-[#363636] rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        E-Sertifikat
+                      </span>
+                    </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <InputField label="Nama" placeholder="Your First Name" />
-              <InputField label="Phone" placeholder="089512345678" />
-              <InputField label="Golongan Darah" placeholder="AB +" />
-            </div>
+                    {/* Button SKL */}
+                    <div className="relative group">
+                      <Button className="p-2 bg-blue-950 hover:bg-blue-800 rounded-md">
+                        <FileSignature size={20} />
+                      </Button>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-[#363636] rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        SKL
+                      </span>
+                    </div>
 
-            <div className="space-y-4">
-              <InputField label="Email" placeholder="nanda@gmail.com" />
-              <InputField label="Jenis Kelamin" placeholder="Laki Laki" />
-            </div>
-          </div>
-        </Card>
-      </div>
+                    {/* Button Scan Sertifikat */}
+                    <div className="relative group">
+                      <Button className="p-2 bg-blue-950 hover:bg-blue-800 rounded-md">
+                        <Scan size={20} />
+                      </Button>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-[#363636] rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        Scan Sertifikat
+                      </span>
+                    </div>
+
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
-
-// Komponen Reusable untuk Input Field
-const InputField = ({ label, placeholder }) => (
-  <div>
-    <label className="block text-gray-900 font-medium mb-1">{label}</label>
-    <Input className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={placeholder} />
-  </div>
-);
