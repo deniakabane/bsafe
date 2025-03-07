@@ -52,6 +52,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const sessionResponse = await checkSession(req);
+
     if (!sessionResponse.success) {
       return sessionResponse;
     }

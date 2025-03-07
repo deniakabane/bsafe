@@ -77,6 +77,10 @@ CREATE TABLE `user_training` (
     `training_id` INTEGER NOT NULL,
     `certificate_no` VARCHAR(191) NULL,
     `theme` VARCHAR(191) NULL,
+    `publish` BOOLEAN NOT NULL DEFAULT false,
+    `company_name` VARCHAR(191) NULL,
+    `company_address` VARCHAR(191) NULL,
+    `regis_status` VARCHAR(191) NULL,
     `status` ENUM('CANCEL', 'DRAFT', 'PESERTA') NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -84,20 +88,6 @@ CREATE TABLE `user_training` (
     INDEX `user_training_user_id_idx`(`user_id`),
     INDEX `user_training_training_id_idx`(`training_id`),
     INDEX `user_training_certificate_no_idx`(`certificate_no`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `user_training_detail` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `user_training_id` INTEGER NOT NULL,
-    `company_name` VARCHAR(191) NULL,
-    `company_address` VARCHAR(191) NULL,
-    `institution` VARCHAR(191) NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    UNIQUE INDEX `user_training_detail_user_training_id_key`(`user_training_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -355,6 +345,40 @@ CREATE TABLE `product_appeal_training` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `kategori_module` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama` VARCHAR(191) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `list_kategori_module` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama` VARCHAR(191) NOT NULL,
+    `kategori_id` INTEGER NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `detail_module` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nama` VARCHAR(191) NOT NULL,
+    `jumlah_halaman` INTEGER NOT NULL,
+    `list_kategori_id` INTEGER NOT NULL,
+    `file` INTEGER NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Session` ADD CONSTRAINT `Session_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -366,9 +390,6 @@ ALTER TABLE `user_training` ADD CONSTRAINT `user_training_user_id_fkey` FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE `user_training` ADD CONSTRAINT `user_training_training_id_fkey` FOREIGN KEY (`training_id`) REFERENCES `Training`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `user_training_detail` ADD CONSTRAINT `user_training_detail_user_training_id_fkey` FOREIGN KEY (`user_training_id`) REFERENCES `user_training`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `user_company` ADD CONSTRAINT `user_company_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -429,3 +450,9 @@ ALTER TABLE `product_appeal_training` ADD CONSTRAINT `product_appeal_training_tr
 
 -- AddForeignKey
 ALTER TABLE `product_appeal_training` ADD CONSTRAINT `product_appeal_training_appeal_id_fkey` FOREIGN KEY (`appeal_id`) REFERENCES `product_appeal`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `list_kategori_module` ADD CONSTRAINT `list_kategori_module_kategori_id_fkey` FOREIGN KEY (`kategori_id`) REFERENCES `kategori_module`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `detail_module` ADD CONSTRAINT `detail_module_list_kategori_id_fkey` FOREIGN KEY (`list_kategori_id`) REFERENCES `list_kategori_module`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

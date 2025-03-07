@@ -8,7 +8,6 @@ export default function UserProfile() {
   useEffect(() => {
     const name = Cookies.get("user_name");
     const picture = Cookies.get("user_picture");
-
     if (name && picture) {
       setUser({ name, picture });
     }
@@ -16,7 +15,6 @@ export default function UserProfile() {
 
   const handleLogout = async () => {
     await fetch("/api/public/login/google/logout");
-    Cookies.remove("auth_token");
     Cookies.remove("user_name");
     Cookies.remove("user_picture");
     Cookies.remove("user_id");

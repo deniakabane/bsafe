@@ -51,7 +51,7 @@ model User {
   historyPayment    HistoryPayment[]
   masterDocument    MasterDocument[]
   userDocument    UserDocument[]
-   session  Session?
+  session  Session?
 }
 
 enum adminType {
@@ -96,33 +96,22 @@ model UserTraining {
   training_id     Int    
   certificate_no  String?     @db.VarChar(191)  
   theme           String?     @db.VarChar(191) 
+  publish         Boolean @default(false)
+  company_name     String? @db.VarChar(191) 
+  company_address  String? @db.VarChar(191) 
+  regis_status     String? @db.VarChar(191) 
   status          statusTraining 
   created_at      DateTime    @default(now())
   updated_at      DateTime    @updatedAt 
 
   user            User        @relation(fields: [user_id], references: [id])
   training        Training    @relation(fields: [training_id], references: [id])
-  details         UserTrainingDetail? 
 
   @@index([user_id])  
   @@index([training_id])  
   @@index([certificate_no])  
   @@map("user_training")
-}
-
-model UserTrainingDetail {
-  id                Int     @id @default(autoincrement())
-  user_training_id  Int     @unique 
-  company_name      String? @db.VarChar(191) 
-  company_address   String? @db.VarChar(191) 
-  institution       String? @db.VarChar(191) 
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-
-  userTraining          UserTraining     @relation(fields: [user_training_id], references: [id], onDelete: Cascade)
-
-  @@map("user_training_detail")
-}
+} 
 
 
 model UserCompany {
@@ -425,4 +414,39 @@ model ProductAppealTraining {
   @@index([training_id])
   @@index([appeal_id])
   @@map("product_appeal_training")
+}
+
+model KategoriModule {
+  id       Int       @id @default(autoincrement())
+  nama     String    @db.VarChar(191)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  modules  ListKategoriModule[]
+  
+  @@map("kategori_module")
+}
+
+model ListKategoriModule {
+  id               Int             @id @default(autoincrement())
+  nama             String          @db.VarChar(191)
+  kategori_id      Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  kategoriModule   KategoriModule  @relation(fields: [kategori_id], references: [id])
+  modules          DetailModule[]
+  
+  @@map("list_kategori_module")
+}
+
+model DetailModule {
+  id               Int                @id @default(autoincrement())
+  nama             String             @db.VarChar(191)
+  jumlah_halaman   Int
+  list_kategori_id Int
+  file Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  listKategori     ListKategoriModule @relation(fields: [list_kategori_id], references: [id])
+  
+  @@map("detail_module")
 }

@@ -10,11 +10,6 @@ import { checkSession } from "@/utils/session";
 
 export async function GET(req, context) {
   try {
-    const sessionResponse = await checkSession(req);
-
-    if (!sessionResponse.success) {
-      return sessionResponse;
-    }
     const {
       page,
       limit,
@@ -85,75 +80,6 @@ export async function GET(req, context) {
     );
   } catch (error) {
     return response(500, false, "Failed to retrieve user training data", {
-      error: error.message,
-    });
-  }
-}
-
-export async function POST(req, context) {
-  try {
-    const sessionResponse = await checkSession(req);
-
-    if (!sessionResponse.success) {
-      return sessionResponse;
-    }
-    const params = await context.params;
-    const userId = parseInt(params.id, 10);
-    if (isNaN(userId)) return response(400, false, "Invalid user ID");
-
-    const jsonData = await req.json();
-    const { training_id, certificate_no, theme } = jsonData;
-
-    if (!training_id || !certificate_no || !theme) {
-      return response(400, false, "Missing required fields");
-    }
-
-    const trainingId = Number(training_id);
-
-    const trainingExists = await prisma.training.findUnique({
-      where: { id: trainingId },
-    });
-
-    if (!trainingExists) {
-      return response(400, false, "Training not found");
-    }
-
-    const userTrainingExists = await prisma.userTraining.findFirst({
-      where: {
-        user_id: userId,
-        training_id: trainingId,
-      },
-    });
-
-    if (userTrainingExists) {
-      return response(400, false, "User is already enrolled in this training");
-    }
-
-    const certificateExists = await prisma.userTraining.findFirst({
-      where: { certificate_no },
-    });
-
-    if (certificateExists) {
-      return response(400, false, "Certificate number already exists");
-    }
-
-    const newUserTraining = await prisma.userTraining.create({
-      data: {
-        user_id: userId,
-        training_id: trainingId,
-        certificate_no,
-        theme,
-      },
-    });
-
-    return response(
-      201,
-      true,
-      "User training successfully created",
-      newUserTraining
-    );
-  } catch (error) {
-    return response(500, false, "Failed to create user training", null, {
       error: error.message,
     });
   }

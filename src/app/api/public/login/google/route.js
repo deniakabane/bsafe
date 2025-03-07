@@ -51,7 +51,6 @@ export async function GET(request) {
         );
       }
 
-      // Step 5: Create a JWT token for the user
       const token = await new SignJWT({
         id: user.id,
         email: user.email,
@@ -63,15 +62,15 @@ export async function GET(request) {
         .sign(SECRET_KEY);
 
       // Step 6: Set the JWT token and user info in cookies
-      const response = NextResponse.redirect("http://localhost:3000"); // Redirect to your app
+      const response = NextResponse.redirect("http://localhost:3000");
 
-      // Set cookies: auth_token, user_name, user_picture, user_id
       response.cookies.set("auth_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 86400, // 1 day
+        sameSite: "lax",
+        maxAge: 86400,
       });
+      console.log("🔹 Cookie Set:", response.cookies.get("auth_token"));
 
       response.cookies.set("user_name", user.name, {
         httpOnly: false, // This can be accessed on the client side
