@@ -1,10 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
+import { checkSessionUser } from "@/utils/sessionuser";
 
 const prisma = new PrismaClient();
 
 export async function GET(req) {
   try {
+    const session = await checkSessionUser();
+
+    if (!session.success) {
+      return NextResponse.json(
+        { success: false, message: session.message },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const user_training_id = searchParams.get("user_training_id");
 
@@ -41,6 +51,15 @@ export async function GET(req) {
 
 export async function PUT(req) {
   try {
+    const session = await checkSessionUser();
+
+    if (!session.success) {
+      return NextResponse.json(
+        { success: false, message: session.message },
+        { status: 401 }
+      );
+    }
+
     const { user_training_id, userData, trainingData } = await req.json();
 
     // Validasi hanya untuk name dan phone (email tidak boleh diubah)

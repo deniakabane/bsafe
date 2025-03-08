@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 
 export async function checkSession() {
   try {
+    // return { success: true };
+
     const cookieStore = await cookies(); // ✅ Perbaikan dengan await
     const sessionId = cookieStore.get("admin_session")?.value;
 

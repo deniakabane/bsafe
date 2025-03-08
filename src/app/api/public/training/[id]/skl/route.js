@@ -1,11 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import response from "@/utils/response";
-import moment from "moment"; // Gunakan moment.js untuk memeriksa tanggal
+import { checkSessionUser } from "@/utils/sessionuser";
 
 const prisma = new PrismaClient();
 
 export async function GET(req, context) {
   try {
+    const session = await checkSessionUser();
+
+    if (!session.success) {
+      return NextResponse.json(
+        { success: false, message: session.message },
+        { status: 401 }
+      );
+    }
+
     const params = await context.params;
     const { id } = params;
 

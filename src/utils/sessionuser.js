@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { jwtVerify } from "jose";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+
 const prisma = new PrismaClient();
 
 export async function checkSessionUser() {
   try {
-    const allCookies = cookies().getAll(); // Ambil semua cookies
+    // return { success: true };
 
-    console.log("🍪 Semua Cookies:", allCookies);
-    const token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJha2FiYW5lZGVuaTM0QGdtYWlsLmNvbSIsIm5hbWUiOiJOYW1hIEJhcnV1IiwiaWF0IjoxNzQxMjk3MjAzLCJleHAiOjE3NDEzMDQ0MDN9.Rog2CPg7ZLoDpR87H35B8EKPwLkWC2irf37fWknx5aM";
+    const token = cookies().get("auth_token")?.value;
 
     if (!token) {
       return { success: false, message: "Token tidak ditemukan" };
@@ -20,7 +20,6 @@ export async function checkSessionUser() {
 
     console.log("✅ JWT Verified:", payload);
 
-    // 🔍 Cari user di database berdasarkan email dari token
     const user = await prisma.user.findUnique({
       where: { email: payload.email },
     });

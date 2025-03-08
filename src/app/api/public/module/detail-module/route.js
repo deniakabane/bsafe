@@ -5,11 +5,20 @@ import {
   buildSearchCondition,
   getPaginationMeta,
 } from "@/utils/queryHelper";
+import { checkSessionUser } from "@/utils/sessionuser";
 
 const prisma = new PrismaClient();
 
 export async function GET(req) {
   try {
+    const session = await checkSessionUser();
+
+    if (!session.success) {
+      return NextResponse.json(
+        { success: false, message: session.message },
+        { status: 401 }
+      );
+    }
     const { page, limit, offset, search, sortField, sortOrder } =
       getQueryParams(req.url);
     const searchCondition = buildSearchCondition("nama", search);

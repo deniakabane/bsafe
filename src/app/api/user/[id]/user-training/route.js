@@ -11,10 +11,10 @@ import { checkSession } from "@/utils/session";
 export async function GET(req, context) {
   try {
     const sessionResponse = await checkSession(req);
-
     if (!sessionResponse.success) {
       return sessionResponse;
     }
+
     const {
       page,
       limit,

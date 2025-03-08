@@ -6,10 +6,19 @@ import {
   getPaginationMeta,
 } from "@/utils/queryHelper";
 const prisma = new PrismaClient();
-import { checkSession } from "@/utils/session";
+import { checkSessionUser } from "@/utils/sessionuser";
 
 export async function GET(req, context) {
   try {
+    const session = await checkSessionUser();
+
+    if (!session.success) {
+      return NextResponse.json(
+        { success: false, message: session.message },
+        { status: 401 }
+      );
+    }
+
     const {
       page,
       limit,
